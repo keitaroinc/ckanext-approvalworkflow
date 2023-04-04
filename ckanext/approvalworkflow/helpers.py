@@ -28,4 +28,4 @@ def get_approval_org_info(context, org_id):
     if aw_org_model:
         aw_settings = db.table_dictize(aw_org_model, context)
 
-        return aw_settings    
+        return aw_settings

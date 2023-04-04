@@ -7,7 +7,7 @@
 
     {{ super() }}
     {% set org_active = h.get_approval_org_info({}, organization.id) %}
-    {% if org_active %}
+    {% if org_active and org_active.active == True %}
         <span class="fa fa-line-chart"></span>
     {% endif %}
     {% endblock %}

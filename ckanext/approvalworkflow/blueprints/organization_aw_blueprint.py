@@ -176,7 +176,11 @@ class OrganizationApprovalConfigView(MethodView):
             return tk.render(u'organization/snippets/org_approval_form.html', extra_vars=vars)
 
         if db_model:
-            model_dict = db.table_dictize(db_model, context)  
+            model_dict = db.table_dictize(db_model, context)
+        else:
+            db_model = db.ApprovalWorkflowOrganization.get(organization_id=group_dict['id'])
+            model_dict = db.table_dictize(db_model, context)
+
         vars = dict(data=items,
                     form_items=items,
                     group_dict=group_dict,
