@@ -32,6 +32,16 @@
 {% block delete_button %}
   {% if form_style == 'edit' and data.state == 'pending' %}
     {% set aw = h.get_approvalworkflow_info({}) %}
-      <a class="btn btn-danger pull-left" href="{% url_for 'dataset_approval_workflow.reject', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reject this dataset?') }}">{% block delete_button_text %}{{ _('Reject') }}{% endblock %}</a>
+      <a class="btn btn-danger pull-left" href="{% url_for 'dataset_approval_workflow.reject', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to reject this dataset?') }}">
+        {% block delete_button_text %}
+          {% if data.state == 'pending' %}
+            {{ _('Reject') }}
+          {% else %}
+            {{ super() }}
+          {% endif %}
+        {% endblock %}
+      </a>
+  {% else %}
+      {{ super() }}
   {% endif %}  
 {% endblock %}

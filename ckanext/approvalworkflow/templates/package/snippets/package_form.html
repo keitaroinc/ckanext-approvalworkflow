@@ -5,6 +5,7 @@
         <a class="btn btn-danger pull-left" href="{% url_for dataset_type ~ '.delete', id=data.id %}" data-module="confirm-action" data-module-content="{{ _('Are you sure you want to delete this dataset?') }}">{% block delete_button_text %}{{ _('Delete') }}{% endblock %}</a>
     {% endif %}
 {% endblock %}
+
 {% block save_button %}
     <!-- if user is not sysadmin -->
     {% if not c.userobj.sysadmin %}
@@ -25,4 +26,5 @@
 
     {% block save_button_text %}{{ _('Next: Add Data') }}{% endblock %}</button>
 {% endblock %}
+
 {{ super() }}
