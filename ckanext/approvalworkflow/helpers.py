@@ -5,9 +5,10 @@ from ckan.plugins import toolkit
 def get_approvalworkflow_info(context):
     aw_model = db.ApprovalWorkflow.get()
 
-    if aw_model.active:
-        aw_settings = db.table_dictize(aw_model, context)
-        return aw_settings
+    if aw_model:
+        if aw.model.active:
+            aw_settings = db.table_dictize(aw_model, context)
+            return aw_settings
 
 
 def get_approvalworkflow_org_info(context, pkg_id):
