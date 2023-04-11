@@ -53,7 +53,7 @@
                     {% endif %}
                   {% endblock %}
                   {% block heading_title %}
-          {{ h.link_to(h.truncate(title, truncate_title), h.url_for('%s.edit' % package.type, id=package.name)) }}
+                  {{ h.link_to(h.truncate(title, truncate_title), h.url_for('%s.edit' % package.type, id=package.name)) }}
                   {% endblock %}
                   {% block heading_meta %}
                     {% if package.get('state', '').startswith('draft') %}

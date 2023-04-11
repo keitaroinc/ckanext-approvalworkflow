@@ -20,15 +20,15 @@
       <button class="btn btn-default" name="save" value="again" type="submit">{{ _('Save & add another') }}</button>
     {% endblock %}
     {% if stage %}
-      {% if aw['active'] or aw_pkg['active'] %}
+      {% if aw['active'] == True or aw_pkg['active'] == True %}
         {% block save_button %}
-        {% if not g.userobj.sysadmin %}
-              <button class="btn btn-primary" name="save" value="review" type="submit">
-                {% block review_button_text %}{{ _('Review') }}{% endblock %}
-        {% else %}
-              <button class="btn btn-primary" name="save" value="save" type="submit">
-                {% block save_button_text %}{{ _('Finish') }}{% endblock %}
-        {% endif %}
+          {% if not g.userobj.sysadmin and aw != None %}
+                <button class="btn btn-primary" name="save" value="review" type="submit">
+                  {% block review_button_text %}{{ _('Review') }}{% endblock %}
+          {% else %}
+                <button class="btn btn-primary" name="save" value="go-metadata" type="submit">
+                  {% block save_button_text %}{{ _('Finish') }}{% endblock %}
+          {% endif %}
           </button>
         {% endblock %}
       {% else %}
