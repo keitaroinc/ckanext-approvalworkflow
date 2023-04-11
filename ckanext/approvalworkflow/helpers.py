@@ -6,7 +6,7 @@ def get_approvalworkflow_info(context):
     aw_model = db.ApprovalWorkflow.get()
 
     if aw_model:
-        if aw.model.active:
+        if aw_model.active:
             aw_settings = db.table_dictize(aw_model, context)
             return aw_settings
 
