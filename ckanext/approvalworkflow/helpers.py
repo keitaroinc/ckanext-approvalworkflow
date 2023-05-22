@@ -53,7 +53,7 @@ def is_user_org_admin(org_id):
     info = get_organization_info_for_user()
    
     for organization in info: 
-            #checking if the user has the role of editor in the organizations for which it has permissions
+            #checking if the user has the role of admin in the organizations for which it has permissions
         if (organization.get('id') == org_id and organization.get('capacity') == 'admin'):
             return True
    
