@@ -35,7 +35,8 @@ def get_approval_org_info(context, org_id):
     
 
 def get_organization_info_for_user(include_dataset_count=True):
-    '''Return a list of organizations with additional data such as user role ('capacity')
+    '''Return a list of organizations with additional data
+        such as user role ('capacity')
        for the ones that the user has permission.
     '''
     context = {'user': g.user}
@@ -46,9 +47,11 @@ def get_organization_info_for_user(include_dataset_count=True):
 
 
 def is_user_org_admin(org_id):
-    
-    info = get_organization_info_for_user()  #Gets the whole information for every organization the user has permissions for 
-
+   
+    '''Gets the whole information for every organization
+        the user has permissions for'''
+    info = get_organization_info_for_user()
+   
     for organization in info: 
             #checking if the user has the role of editor in the organizations for which it has permissions
         if (organization.get('id') == org_id and organization.get('capacity') == 'admin'):
