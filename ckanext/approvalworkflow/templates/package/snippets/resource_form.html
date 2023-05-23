@@ -3,7 +3,10 @@
     {% set aw = h.get_approvalworkflow_info({}) %}
     {% set aw_pkg = h.get_approvalworkflow_org_info({}, pkg_name) %}
     
-    {% set org_admin = h.is_user_org_admin(aw_pkg['organization_id'] or g.userobj.sysadmin) %}
+    {# this line if organisation admin dataset should not go to review
+    set org_admin = h.is_user_org_admin(aw_pkg['organization_id'] or g.userobj.sysadmin)
+    #}
+    {% set org_admin = g.userobj.sysadmin %}
     
     {% set review_button = false %}
     {% if aw['approval_workflow_active'] == '2' %}
