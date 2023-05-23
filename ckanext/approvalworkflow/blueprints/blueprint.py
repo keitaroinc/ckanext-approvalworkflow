@@ -10,7 +10,6 @@ import json
 import logging
 
 import flask
-from flask.views import MethodView
 
 import six
 import ckan.lib.base as base
