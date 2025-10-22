@@ -161,7 +161,7 @@ class ApprovalEditView(MethodView):
         resources_json = h.json.dumps(data.get(u'resources', []))
 
         try:
-            logic.check_access(u'package_update', context)
+            logic.check_access(u'package_update', context, {u'id': id})
         except NotAuthorized:
             return base.abort(
                 403,
