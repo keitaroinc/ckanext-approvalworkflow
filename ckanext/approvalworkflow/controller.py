@@ -13,4 +13,4 @@ class ApprovalWorkflowController(p.toolkit.BaseController):
 
 
 def workflow_index(self):
-    return tk.render('approval_workflow/index.html')    
+    return tk.render('approval_workflow/index.html')
