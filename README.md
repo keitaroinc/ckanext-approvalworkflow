@@ -1,4 +1,4 @@
-[![Tests](https://github.com//ckanext-approvalworkflow/workflows/Tests/badge.svg?branch=main)](https://github.com//ckanext-approvalworkflow/actions)
+[![CI][]][1] [![Python][]][2] [![CKAN][]][3]
 
 # ckanext-approvalworkflow
 
@@ -17,8 +17,9 @@ Make sure to have [email settings](https://docs.ckan.org/en/2.9/maintaining/conf
 The extension can work with [ckanext-datasetversions](https://github.com/keitaroinc/ckanext-datasetversions)
 
 
-Compatibility with core CKAN versions: 2.9
+Compatibility with core CKAN versions: 2.10, 2.11
 
+For CKAN 2.9 use tag 0.0.1
 
 ## Installation
 To install ckanext-approvalworkflow:
@@ -110,3 +111,11 @@ If ckanext-approvalworkflow should be available on PyPI you can follow these ste
 ## License
 
 [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
+
+  [CI]: https://github.com/keitaroinc/ckanext-approvalworkflow/workflows/CI/badge.svg
+  [1]: https://github.com/keitaroinc/ckanext-approvalworkflow/actions
+  [Python]: https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue
+  [2]: https://www.python.org
+  [CKAN]: https://img.shields.io/badge/ckan-%202.9%20|%202.10%20|%202.11-yellow
+  [3]: https://www.ckan.org
