@@ -15,7 +15,6 @@ from ckanext.approvalworkflow.blueprints.aw_dataset_blueprint import dataset_app
 from ckanext.approvalworkflow.blueprints.resource_blueprint import approval_resource_blueprint as approval_resource_blueprint
 
 
-
 class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IBlueprint)
@@ -29,7 +28,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def get_commands(self):
         return get_commands()
 
-          
     def is_fallback(self):
         return True
 
@@ -83,7 +81,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
                 validate_state, ]
                 })
         return schema
-
 
     def setup_template_variables(
             self, context, data_dict):

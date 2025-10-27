@@ -55,6 +55,7 @@ approval_workflow_organization_table = sa.Table('ckanext_approvalworkflow_organi
                         extend_existing=True
                         )
 
+
 class ApprovalWorkflow(DomainObject):
     def __init__(self, **kwargs):
         self.id=make_uuid()
@@ -81,7 +82,7 @@ class ApprovalWorkflow(DomainObject):
 class ApprovalWorkflowOrganization(DomainObject):
     def __init__(self, **kwargs):
         self.id=make_uuid()
-        
+
     @classmethod
     def get(cls, **kw):
         '''Finds a single entity in the register.'''
@@ -103,6 +104,7 @@ meta.mapper(
     ApprovalWorkflowOrganization,
     approval_workflow_organization_table, properties={'approval_workflow_id': relationship (ApprovalWorkflow)}
 )
+
 
 def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
@@ -144,7 +146,7 @@ def table_dictize(obj, context, **kw):
 def init_db():
     if approval_workflow_table is None:
         define_tables()
-    
+
     if approval_workflow_organization_table is None:
         define_org_tables()        
 

@@ -1,5 +1,5 @@
-import datetime
-import ast
+# import datetime
+# import ast
 
 import ckan.plugins.toolkit as toolkit
 
@@ -29,14 +29,14 @@ def save_workflow_options(self, context, data_dict):
 
     if not db_model:
         db_model = db.ApprovalWorkflow()
-    
+
     aw_active = data_dict.get("approval_workflow_active")
 
     if aw_active != '1':
         db_model.active = True
         db_model.approval_workflow_active = aw_active
         db_model.deactivate_edit = bool(data_dict.get("ckan.edit-button"))
-        
+
         if aw_active == '3':
             db_model.active_per_organization = True
         else:
@@ -80,7 +80,7 @@ def save_org_workflow_options(self, context, data_dict):
             db_model = db.ApprovalWorkflowOrganization()
 
         aw_active = data_dict.get("approval_workflow_active")
-        
+
         if aw_active == '2':
             db_model.active = True
             db_model.approval_workflow_id = approval_workflow
@@ -95,4 +95,4 @@ def save_org_workflow_options(self, context, data_dict):
             db_model.deactivate_edit = False     
 
         db_model.save()
-    return    
+    return

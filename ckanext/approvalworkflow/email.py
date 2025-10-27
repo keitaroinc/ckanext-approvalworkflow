@@ -59,7 +59,7 @@ def send_approval_needed(user, group_dict=None, pkg_dict=None):
         'aw_link_datasets': get_approval_link(pkg_dict),
         'site_title': config.get('ckan.site_title')
     }
-    print (extra_vars['site_title'])
+    print(extra_vars['site_title'])
 
     if group_dict:
         group_type = (_('organization') if group_dict['is_organization']
@@ -69,8 +69,7 @@ def send_approval_needed(user, group_dict=None, pkg_dict=None):
     if group_dict:
         extra_vars['group_type'] = group_type
         extra_vars['group_title'] = group_dict.get('title')
-    
-        
+
     subject = render('email/approval_needed.txt', extra_vars)
 
     # Make sure we only use the first line
