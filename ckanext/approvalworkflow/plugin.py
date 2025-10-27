@@ -86,7 +86,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
             self, context, data_dict):
         return super(ApprovalworkflowPlugin, self).setup_template_variables(
                 context, data_dict)
-        
+
     def get_blueprint(self):
         return [approval_workflow_blueprint, org_approval_workflow, \
         dataset_approval_workflow, approval_resource_blueprint]

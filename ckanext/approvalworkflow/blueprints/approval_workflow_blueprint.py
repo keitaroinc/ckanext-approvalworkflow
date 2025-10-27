@@ -47,7 +47,6 @@ from ckanext.approvalworkflow.db import ApprovalWorkflow
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
-Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -123,7 +122,6 @@ class ApprovalConfigView(MethodView):
                     logic.tuplize_dict(
                         logic.parse_params(req,
                                            ignore_keys=CACHE_PARAMETERS))))
-            
 
             del data_dict['save']
             data = actions.save_workflow_options(self, context, data_dict)
@@ -161,7 +159,7 @@ def index(data=None):
     extra_vars['data'] = data
 
     if tk.request.method == 'POST' and not data:
-        print (POST)
+        print(POST)
 
     return tk.render('approval_workflow/index.html', extra_vars=extra_vars)
 
@@ -174,7 +172,7 @@ def datasets():
         u'auth_user_obj': g.userobj,
         u'for_view': True
     }
-    
+
     data = _get_config_options()
     data_dict_user = {u'user_obj': g.userobj, u'include_datasets': True, u'include_private': True, u'include_review': True}
 
@@ -282,7 +280,7 @@ def package_review_search(context, data_dict):
         query = search.query_for(model.Package)
         query.run(data_dict, permission_labels=labels)
 
-        print (query.results)
+        print(query.results)
         
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
@@ -298,7 +296,7 @@ def package_review_search(context, data_dict):
             for package in query.results:
                 # get the package object
                 package_dict = package.get(data_source)
-                ## use data in search index if there
+                # use data in search index if there
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)
@@ -317,7 +315,6 @@ def package_review_search(context, data_dict):
         count = 0
         facets = {}
         results = []
-    
 
     search_results = {
         'count': count,
@@ -326,7 +323,7 @@ def package_review_search(context, data_dict):
         'sort': data_dict['sort']
     }
 
-    print (search_results)
+    print(search_results)
 
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
@@ -470,7 +467,7 @@ def approval_user_show(context, data_dict):
             search_dict.update({
                 'include_private': True,
                 'include_drafts': True})
-        
+
         if include_review:
             if include_private_and_draft_datasets:
                 search_dict.update({

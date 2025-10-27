@@ -48,7 +48,6 @@ from ckanext.approvalworkflow.db import ApprovalWorkflow
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
-Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -68,6 +67,7 @@ dataset_approval_workflow = Blueprint(
     url_prefix=u'/dataset',
     url_defaults={u'package_type': u'dataset'}
 )
+
 
 class ApprovalEditView(MethodView):
     def _prepare(self, id, data=None):
@@ -213,6 +213,7 @@ class ApprovalEditView(MethodView):
             }
         )
 
+
 class ApprovalWorkflowRejectView(MethodView):
     def _prepare(self):
         context = {
@@ -240,7 +241,7 @@ class ApprovalWorkflowRejectView(MethodView):
             )
 
         h.flash_notice(_(u'Dataset has been rejected. Saved as Draft'))
-        return h.redirect_to( u'dataset.search')
+        return h.redirect_to(u'dataset.search')
 
     def get(self, package_type, id):
         context = self._prepare()
