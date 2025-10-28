@@ -1,32 +1,24 @@
 from flask import Blueprint
 from flask.views import MethodView
 
-import ckantoolkit as tk
-from ckan.plugins import PluginImplementations, toolkit
 
 # encoding: utf-8
-import cgi
 import json
 import logging
 
 import flask
 
-import six
 import ckan.lib.base as base
-import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
-from ckan.lib import mailer
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, g, request
-from ckan.views.home import CACHE_PARAMETERS
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
+from ckan.lib.search import SearchIndexError
 
 from ckan.views.dataset import (
-    _get_pkg_template, _get_package_type, _setup_template_variables
+    _get_package_type
 )
 
 Blueprint = flask.Blueprint
@@ -41,7 +33,6 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
-from ckan.views.user import _extra_template_variables
 
 
 
@@ -430,7 +421,7 @@ class ApprovalEditView(MethodView):
             )
         except NotAuthorized:
             return base.abort(403, _(u'Unauthorized to read package %s') % id)
-        except NotFound as e:
+        except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except SearchIndexError as e:
             try:

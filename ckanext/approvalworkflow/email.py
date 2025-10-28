@@ -1,23 +1,9 @@
 # encoding: utf-8
 
-import codecs
-import os
-import smtplib
-import socket
 import logging
-from time import time
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
-from email.header import Header
-from email import utils
 
 from ckan.common import config
-import ckan.common
-from six import text_type
 
-import ckan
-import ckan.model as model
-import ckan.lib.helpers as h
 from ckan.lib.base import render
 
 from ckan.common import _

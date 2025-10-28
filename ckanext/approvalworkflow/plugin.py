@@ -1,8 +1,6 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
-from ckan.common import json, config
 
-from ckanext.approvalworkflow import db
 from ckanext.approvalworkflow.cli import get_commands
 from ckanext.approvalworkflow import actions
 from ckanext.approvalworkflow import auth

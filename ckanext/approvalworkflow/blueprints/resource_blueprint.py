@@ -1,25 +1,17 @@
 # Resource related blueprint
 # Overriding Resource functions
-import flask
 import six
 import cgi
-import logging
 
 from flask import Blueprint
-from flask.views import MethodView
 
-from ckan.common import _, g, request
-from ckan.plugins import toolkit
-from ckan.lib import mailer
+from ckan.common import g, request
 
 import ckan.lib.helpers as h
 import ckan.logic as logic
-import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.model as model
-import ckan.plugins as plugins
 
-import ckanext.approvalworkflow.db as db
 import ckan.views.resource as resource
 
 clean_dict = logic.clean_dict

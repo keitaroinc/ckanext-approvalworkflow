@@ -3,37 +3,24 @@ from flask import Blueprint
 from flask.views import MethodView
 
 import ckantoolkit as tk
-from ckan.plugins import PluginImplementations, toolkit
 
 # encoding: utf-8
-import cgi
 import json
 import logging
 
-import flask
-from flask.views import MethodView
 
-import six
 import ckan.lib.base as base
-import ckan.lib.datapreview as lib_datapreview
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.uploader as uploader
 import ckan.lib.plugins as lib_plugins
-from ckan.lib import mailer
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 import ckan.lib.dictization.model_dictize as model_dictize
 
-from ckan.views.dataset import (
-    _get_pkg_template, _get_package_type, _setup_template_variables
-)
 
-import ckan.plugins.toolkit as toolkit
 
 import ckan.lib.navl.dictization_functions
 from ckan.common import config, asbool
@@ -41,7 +28,6 @@ import ckan.authz as authz
 import ckan.lib.search as search
 
 from ckanext.approvalworkflow import actions
-import ckanext.approvalworkflow.helpers as aw_helpers
 import ckanext.approvalworkflow.db as db
 from ckanext.approvalworkflow.db import ApprovalWorkflow
 

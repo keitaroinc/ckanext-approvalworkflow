@@ -1,5 +1,4 @@
 import datetime
-import uuid
 import json
 
 from six import text_type
@@ -96,7 +95,6 @@ class ApprovalWorkflowOrganization(DomainObject):
         query = query.filter_by(**kw)
         return query.all()
 
-from ckan.model.meta import metadata, mapper, Session
 
 meta.mapper(ApprovalWorkflow, approval_workflow_table, properties={})
 
