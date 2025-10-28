@@ -32,33 +32,33 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def _modify_package_schema(self, schema):
         # Add our custom_resource_text metadata field to the schema
         schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                    toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
+                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
         schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
         schema['resources'].update({
-                'state' : [ toolkit.get_validator('ignore_missing'),
-                validate_state, ]
+                'state': [toolkit.get_validator('ignore_missing'),
+                          validate_state, ]
                 })
         return schema
 
     def create_package_schema(self):
         schema = super(ApprovalworkflowPlugin, self).show_package_schema()
         schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                    toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]     
+                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]     
         schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
         schema['resources'].update({
-                'state' : [ toolkit.get_validator('ignore_missing'),
-                validate_state, ]
+                'state': [toolkit.get_validator('ignore_missing'),
+                          validate_state, ]
                 })
         return schema
 
     def update_package_schema(self):
         schema = super(ApprovalworkflowPlugin, self).show_package_schema()
         schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                    toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]      
+                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]      
         schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
         schema['resources'].update({
-                'state' : [ toolkit.get_validator('ignore_missing'),
-                validate_state, ]
+                'state': [toolkit.get_validator('ignore_missing'),
+                          validate_state, ]
                 })
         return schema
 
@@ -73,10 +73,10 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def show_package_schema(self):
         schema = super(ApprovalworkflowPlugin, self).show_package_schema()
         schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                    toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
+                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
         schema['resources'].update({
-                'state' : [ toolkit.get_validator('ignore_missing'),
-                validate_state, ]
+                'state': [toolkit.get_validator('ignore_missing'),
+                          validate_state, ]
                 })
         return schema
 
@@ -87,15 +87,14 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
 
     def get_blueprint(self):
         return [approval_workflow_blueprint, org_approval_workflow, \
-        dataset_approval_workflow, approval_resource_blueprint]
+                dataset_approval_workflow, approval_resource_blueprint]
 
     # IConfigurer
 
     def update_config(self, config_):
         toolkit.add_template_directory(config_, 'templates')
         toolkit.add_public_directory(config_, 'public')
-        toolkit.add_resource('fanstatic',
-            'approvalworkflow')
+        toolkit.add_resource('fanstatic', 'approvalworkflow')
         toolkit.add_resource('assets', 'approvalworkflow')
 
     # IAction

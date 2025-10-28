@@ -1,12 +1,7 @@
 # Approval workflow functions
 from flask import Blueprint
 from flask.views import MethodView
-
-
-# encoding: utf-8
 import logging
-
-
 import ckan.lib.base as base
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
@@ -14,16 +9,11 @@ import ckan.logic as logic
 import ckan.model as model
 from ckan.common import _, g, request
 from ckan.lib.search import SearchIndexError
-
 from ckan.views.dataset import (
     _get_pkg_template, _get_package_type, _setup_template_variables
 )
-
-
 import ckan.lib.navl.dictization_functions
-
 import ckan.views.dataset as dataset
-
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
@@ -244,6 +234,7 @@ class ApprovalWorkflowRejectView(MethodView):
                 u'dataset_type': dataset_type
             }
         )
+
 
 dataset_approval_workflow.add_url_rule(
     u'/edit/<id>', view_func=ApprovalEditView.as_view(str(u'edit'))

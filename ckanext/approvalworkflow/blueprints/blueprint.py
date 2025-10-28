@@ -1,13 +1,8 @@
 from flask import Blueprint
 from flask.views import MethodView
-
-
-# encoding: utf-8
 import json
 import logging
-
 import flask
-
 import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
@@ -16,12 +11,15 @@ import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, g, request
 from ckan.lib.search import SearchIndexError
-
 from ckan.views.dataset import (
     _get_package_type
 )
+import ckan.lib.navl.dictization_functions
+from ckan.common import config, asbool
+import ckan.authz as authz
+import ckan.lib.search as search
 
-Blueprint = flask.Blueprint
+
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -33,7 +31,6 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
-
 
 
 def approval_workflow_settings():
@@ -48,14 +45,10 @@ def approval_workflow_settings():
     # who can review a dataset? org admin sysadmin
     # which organizations need approval workflow
 
-import ckan.lib.navl.dictization_functions
-from ckan.common import config, asbool
-import ckan.authz as authz
-import ckan.lib.search as search
-
 
 _check_access = logic.check_access
 _validate = ckan.lib.navl.dictization_functions.validate
+
 
 def package_review_search(context, data_dict):
     schema = (context.get('schema') or
@@ -133,7 +126,7 @@ def package_review_search(context, data_dict):
 
         query = search.query_for(model.Package)
         query.run(data_dict, permission_labels=labels)
-        print (query.results)
+        print(query.results)
 
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
@@ -261,7 +254,7 @@ def approve_dataset_metadata(context, data_dict):
     model = context['model']
     session = context['session']
     name_or_id = data_dict.get('id') or data_dict.get('name')
-    
+
     if name_or_id is None:
         raise ValidationError({'id': _('Missing value')})
 
@@ -323,7 +316,7 @@ def approve_dataset_metadata(context, data_dict):
         model.Session.rollback()
         raise ValidationError(errors)
 
-    #avoid revisioning by updating directly
+    # avoid revisioning by updating directly
     model.Session.query(model.Package).filter_by(id=pkg.id).update(
         {"metadata_modified": datetime.datetime.utcnow(), "status": "active"})
     model.Session.refresh(pkg)
@@ -377,7 +370,6 @@ def approve_dataset_metadata(context, data_dict):
             else _get_action('package_show')(context, {'id': data_dict['id']})
 
     return output
-
 
 
 class ApprovalEditView(MethodView):
@@ -438,13 +430,9 @@ class ApprovalEditView(MethodView):
             return self.get(package_type, id, data_dict, errors, error_summary)
 
 
-
 # def register_dataset_plugin_rules(blueprint):
 #     blueprint.add_url_rule(
 #          u'/edit/<id>', view_func=ApprovalEditView.as_view(str(u'edit')))
 
-#register_dataset_plugin_rules(dataset_blueprint)
-#register_approval_plugin_rules(blueprint_edit)
-
-
-
+# register_dataset_plugin_rules(dataset_blueprint)
+# register_approval_plugin_rules(blueprint_edit)

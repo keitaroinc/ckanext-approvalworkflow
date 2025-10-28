@@ -1,11 +1,6 @@
-# encoding: utf-8
-
 import logging
-
 from ckan.common import config
-
 from ckan.lib.base import render
-
 from ckan.common import _
 from ckan.lib import mailer
 

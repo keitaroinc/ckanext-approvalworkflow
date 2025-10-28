@@ -19,9 +19,6 @@ import ckan.plugins as plugins
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
 import ckan.lib.dictization.model_dictize as model_dictize
-
-
-
 import ckan.lib.navl.dictization_functions
 from ckan.common import config, asbool
 import ckan.authz as authz
@@ -30,6 +27,7 @@ import ckan.lib.search as search
 from ckanext.approvalworkflow import actions
 import ckanext.approvalworkflow.db as db
 from ckanext.approvalworkflow.db import ApprovalWorkflow
+from ckan.views.user import _extra_template_variables
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
@@ -43,7 +41,6 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
-from ckan.views.user import _extra_template_variables
 
 approval_workflow = Blueprint('approval_workflow', __name__)
 
@@ -126,6 +123,7 @@ class ApprovalConfigView(MethodView):
 
         return h.redirect_to(u'approval_workflow.config')
 
+
 approval_workflow.add_url_rule(u'/workflow', view_func=ApprovalConfigView.as_view(str(u'config')))
 
 
@@ -137,7 +135,7 @@ def index(data=None):
         u'auth_user_obj': g.userobj,
         u'for_view': True
     }
-    
+
     data = _get_config_options()
 
     data_dict = {u'user_obj': g.userobj, u'offset': 0}
@@ -173,8 +171,8 @@ def datasets():
             data_dict = extra_vars['user_dict']
 
             vars = dict(context=context,
-                        user_dict = extra_vars['user_dict'],
-                        is_sysadmin = extra_vars['is_sysadmin'],
+                        user_dict=extra_vars['user_dict'],
+                        is_sysadmin=extra_vars['is_sysadmin'],
                         data=data,
                         data_dict=data_dict)
 
@@ -267,7 +265,7 @@ def package_review_search(context, data_dict):
         query.run(data_dict, permission_labels=labels)
 
         print(query.results)
-        
+
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
@@ -465,10 +463,10 @@ def approval_user_show(context, data_dict):
                     'include_review': True})
 
         search_dict.update({'fq': fq})
-        print (search_dict)
+        print(search_dict)
         user_dict['datasets'] = package_review_search(context, search_dict)['results']
-        print (user_dict['datasets'])
-    
+        print(user_dict['datasets'])
+
     return user_dict
 
 

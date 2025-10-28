@@ -1,32 +1,21 @@
 # Approval workflow functions
 from flask import Blueprint
 from flask.views import MethodView
-
 import ckantoolkit as tk
-
-# encoding: utf-8
 import logging
-
-import flask
-
 import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
-
-
-
 import ckan.lib.navl.dictization_functions
 import ckan.authz as authz
-
 from ckanext.approvalworkflow import actions
 import ckanext.approvalworkflow.db as db
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
-Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -38,8 +27,8 @@ flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
 
-
 org_approval_workflow = Blueprint('org_approval_workflow', __name__)
+
 
 def _get_config_options():
     org_activity_workflow_options = [{
@@ -135,12 +124,10 @@ class OrganizationApprovalConfigView(MethodView):
                     logic.tuplize_dict(
                         logic.parse_params(req,
                                            ignore_keys=CACHE_PARAMETERS))))
-            data_dict['organization'] = group_dict['id']
-            
+            data_dict['organization'] = group_dict['id']    
 
             del data_dict['save']
             data = actions.save_org_workflow_options(self, context, data_dict)
-
 
         except logic.ValidationError as e:
             if db_model:
@@ -187,8 +174,10 @@ def _get_group_dict(id, group_type):
         })
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
-  
+
+
 org_approval_workflow.add_url_rule(u'/organization/approval_workflow/<id>', view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow')))
+
 
 def index(data=None, id=None):
     context = {
@@ -204,6 +193,6 @@ def index(data=None, id=None):
     extra_vars = _extra_template_variables(context, data_dict)
 
     if tk.request.method == 'POST' and not data:
-        return 
+        return
 
     return tk.render(u'organization/snippets/org_approval_form.html', extra_vars=extra_vars)

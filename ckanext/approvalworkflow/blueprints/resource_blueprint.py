@@ -2,16 +2,12 @@
 # Overriding Resource functions
 import six
 import cgi
-
 from flask import Blueprint
-
 from ckan.common import g, request
-
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.model as model
-
 import ckan.views.resource as resource
 
 clean_dict = logic.clean_dict
@@ -28,6 +24,7 @@ approval_resource_blueprint = Blueprint(
     url_prefix=u'/dataset/<id>/resource',
     url_defaults={u'package_type': u'dataset'}
 )
+
 
 class CreateView(resource.CreateView):
     def post(self, package_type, id):
@@ -55,7 +52,7 @@ class CreateView(resource.CreateView):
                     and key != u'resource_type'):
                 data_provided = True
                 break
-        
+  
         if save_action == u'review':
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})
@@ -71,7 +68,7 @@ class CreateView(resource.CreateView):
                 if user.email:
                     email.send_approval_needed(user, org, data_dict)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)         
-   
+
         else:
             return super(CreateView, self).post(package_type, id)
 
@@ -84,7 +81,9 @@ def get_sysadmins():
                                                model.User.state == 'active')
     return q.all()
 
+
 def register_dataset_plugin_rules(blueprint):
     blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
+
 
 register_dataset_plugin_rules(approval_resource_blueprint)

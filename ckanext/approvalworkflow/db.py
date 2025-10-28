@@ -1,10 +1,8 @@
 import datetime
 import json
-
 from six import text_type
 import sqlalchemy as sa
 from sqlalchemy.orm import class_mapper
-
 try:
     from sqlalchemy.engine import Row
 except ImportError:
@@ -17,7 +15,6 @@ from ckan import model
 import ckan.model.meta as meta
 from ckan.model.types import make_uuid
 from sqlalchemy.orm import relationship
-
 from ckan.model.domain_object import DomainObject
 
 metadata = sa.MetaData()
@@ -58,7 +55,7 @@ approval_workflow_organization_table = sa.Table('ckanext_approvalworkflow_organi
 class ApprovalWorkflow(DomainObject):
     def __init__(self, **kwargs):
         self.id=make_uuid()
-        
+
     @classmethod
     def get(cls, **kw):
         '''Finds a single entity in the register.'''

@@ -1,5 +1,4 @@
-import ckantoolkit
-
+import ckantoolkit as tk
 import ckan.plugins as p
 
 config = ckantoolkit.config
