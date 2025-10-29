@@ -140,22 +140,12 @@ def table_dictize(obj, context, **kw):
 
 
 def init_db():
-    if approval_workflow_table is None:
-        define_tables()
-
-    if approval_workflow_organization_table is None:
-        define_org_tables()
-
-    if not approval_workflow_table.exists():
-        approval_workflow_table.create()
-
-    if not approval_workflow_organization_table.exists():
-        approval_workflow_organization_table.create()
+    engine = model.Session.bind or model.meta.engine
+    approval_workflow_table.create(engine, checkfirst=True)
+    approval_workflow_organization_table.create(engine, checkfirst=True)
 
 
 def drop_db():
-    if approval_workflow_organization_table.exists():
-        approval_workflow_organization_table.drop()
-
-    if approval_workflow_table.exists():
-        approval_workflow_table.drop()
+    engine = model.Session.bind or model.meta.engine
+    approval_workflow_organization_table.drop(engine, checkfirst=True)
+    approval_workflow_table.drop(engine, checkfirst=True)
