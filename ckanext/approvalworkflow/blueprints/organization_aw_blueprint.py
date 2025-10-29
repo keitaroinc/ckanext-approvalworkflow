@@ -97,9 +97,9 @@ class OrganizationApprovalConfigView(MethodView):
                 model_dict = db.table_dictize(db_model, context)
 
                 extra_vars = {u"group_dict": group_dict,
-                            u"group_type": group_type,
-                            u'data_dict': model_dict,
-                            u'data': items}         
+                              u"group_type": group_type,
+                              u'data_dict': model_dict,
+                              u'data': items}
 
         return tk.render(u'organization/snippets/org_approval_form.html', extra_vars=extra_vars)
 
@@ -124,14 +124,14 @@ class OrganizationApprovalConfigView(MethodView):
                     logic.tuplize_dict(
                         logic.parse_params(req,
                                            ignore_keys=CACHE_PARAMETERS))))
-            data_dict['organization'] = group_dict['id']    
+            data_dict['organization'] = group_dict['id']
 
             del data_dict['save']
             data = actions.save_org_workflow_options(self, context, data_dict)
 
         except logic.ValidationError as e:
             if db_model:
-                model_dict = db.table_dictize(db_model, context)            
+                model_dict = db.table_dictize(db_model, context)
             data = request.form
             errors = e.error_dict
             error_summary = e.error_summary
@@ -176,7 +176,8 @@ def _get_group_dict(id, group_type):
         base.abort(404, _(u'Group not found'))
 
 
-org_approval_workflow.add_url_rule(u'/organization/approval_workflow/<id>', view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow')))
+org_approval_workflow.add_url_rule(u'/organization/approval_workflow/<id>', 
+                                   view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow')))
 
 
 def index(data=None, id=None):

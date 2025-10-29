@@ -48,5 +48,6 @@ To temporary patch the CKAN configuration for the duration of a test you can use
         pass
 """
 
+
 def test_plugin():
     pass

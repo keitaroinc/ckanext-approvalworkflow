@@ -44,7 +44,7 @@ def send_approval_needed(user, group_dict=None, pkg_dict=None):
 
     if group_dict:
         group_type = (_('organization') if group_dict['is_organization']
-                      else _('group'))    
+                      else _('group'))
     if pkg_dict:
         extra_vars['dataset_link'] = config.get('ckan.site_url') + '/dataset/edit/' + pkg_dict['name']
     if group_dict:

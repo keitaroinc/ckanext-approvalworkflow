@@ -1,8 +1,6 @@
-from flask import Blueprint
 from flask.views import MethodView
 import json
 import logging
-import flask
 import ckan.lib.base as base
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.lib.uploader as uploader
@@ -142,7 +140,7 @@ def package_review_search(context, data_dict):
             for package in query.results:
                 # get the package object
                 package_dict = package.get(data_source)
-                ## use data in search index if there
+                # use data in search index if there
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)

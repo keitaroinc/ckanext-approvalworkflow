@@ -25,36 +25,37 @@ approval_workflow_organization_table = None
 
 types = sa.types
 
-approval_workflow_table = sa.Table('ckanext_approvalworkflow', model.meta.metadata,
-                        sa.Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-                        sa.Column('active', types.Boolean, default=False),
-                        sa.Column('approval_workflow_active', types.UnicodeText),
-                        sa.Column('active_per_organization', types.Boolean, default=False),
-                        sa.Column('deactivate_edit', types.Boolean, default=False),
-                        sa.Column('created', types.DateTime, default=datetime.datetime.utcnow),
-                        sa.Column('modified', types.DateTime, default=datetime.datetime.utcnow),
-                        sa.Column('extras', types.UnicodeText, default=u'{}'),
-                        extend_existing=True
-                        )
+approval_workflow_table = sa.Table(
+    'ckanext_approvalworkflow', model.meta.metadata,
+    sa.Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    sa.Column('active', types.Boolean, default=False),
+    sa.Column('approval_workflow_active', types.UnicodeText),
+    sa.Column('active_per_organization', types.Boolean, default=False),
+    sa.Column('deactivate_edit', types.Boolean, default=False),
+    sa.Column('created', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('extras', types.UnicodeText, default=u'{}'),
+    extend_existing=True
+    )
 
-
-approval_workflow_organization_table = sa.Table('ckanext_approvalworkflow_organization', model.meta.metadata,
-                        sa.Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
-                        sa.Column('approvalworkflow_id', sa.ForeignKey('ckanext_approvalworkflow.id')),
-                        sa.Column('organization_id', types.UnicodeText, default=u'{}'),
-                        sa.Column('active', types.Boolean, default=False),
-                        sa.Column('deactivate_edit', types.Boolean, default=False),
-                        sa.Column('org_approval_workflow_active', types.UnicodeText, default=u'{}'),
-                        sa.Column('created', types.DateTime, default=datetime.datetime.utcnow),
-                        sa.Column('modified', types.DateTime, default=datetime.datetime.utcnow),
-                        sa.Column('extras', types.UnicodeText, default=u'{}'),
-                        extend_existing=True
-                        )
+approval_workflow_organization_table = sa.Table(
+    'ckanext_approvalworkflow_organization', model.meta.metadata,
+    sa.Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    sa.Column('approvalworkflow_id', sa.ForeignKey('ckanext_approvalworkflow.id')),
+    sa.Column('organization_id', types.UnicodeText, default=u'{}'),
+    sa.Column('active', types.Boolean, default=False),
+    sa.Column('deactivate_edit', types.Boolean, default=False),
+    sa.Column('org_approval_workflow_active', types.UnicodeText, default=u'{}'),
+    sa.Column('created', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('extras', types.UnicodeText, default=u'{}'),
+    extend_existing=True
+    )
 
 
 class ApprovalWorkflow(DomainObject):
     def __init__(self, **kwargs):
-        self.id=make_uuid()
+        self.id = make_uuid()
 
     @classmethod
     def get(cls, **kw):
@@ -143,7 +144,7 @@ def init_db():
         define_tables()
 
     if approval_workflow_organization_table is None:
-        define_org_tables()        
+        define_org_tables()
 
     if not approval_workflow_table.exists():
         approval_workflow_table.create()

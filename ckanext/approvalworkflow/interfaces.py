@@ -10,7 +10,7 @@ class IWorkflowSchema(Interface):
         u'''
         Return a schema with the fields of the approval workflow.
 
-        ckanext-approvalworkflow will use the returned schema to define and validate 
+        ckanext-approvalworkflow will use the returned schema to define and validate
         the fields before storing them.
         '''
         return schema

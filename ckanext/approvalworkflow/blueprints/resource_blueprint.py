@@ -52,7 +52,7 @@ class CreateView(resource.CreateView):
                     and key != u'resource_type'):
                 data_provided = True
                 break
-  
+
         if save_action == u'review':
             # XXX race condition if another user edits/deletes
             data_dict = get_action(u'package_show')(context, {u'id': id})

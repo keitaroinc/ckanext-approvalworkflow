@@ -442,7 +442,7 @@ def approval_user_show(context, data_dict):
         include_review = sysadmin and asbool(
             data_dict.get('include_review', False))
 
-        #fq = "+creator_user_id:{0}".format(user_dict['id'])
+        # fq = "+creator_user_id:{0}".format(user_dict['id'])
         fq = ""
 
         search_dict = {'rows': 50}
