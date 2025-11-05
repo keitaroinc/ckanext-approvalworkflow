@@ -1,8 +1,12 @@
+from ckan.common import g
 import ckan.plugins.toolkit as toolkit
+import ckan.plugins as p
 import ckanext.approvalworkflow.db as db
+import ckan.logic as logic
 
 ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
+NotFound = logic.NotFound
 
 
 def workflow(self, context):
@@ -91,3 +95,32 @@ def save_org_workflow_options(self, context, data_dict):
 
         db_model.save()
     return
+
+
+@p.toolkit.chained_action
+def package_update(up_func, context, data_dict):
+    dataset_dict = up_func(context, data_dict)
+    # name_or_id = data_dict.get('id') or data_dict.get('name')
+    # model = context['model']
+    # session = context['session']
+    # name_or_id = data_dict.get('id') or data_dict.get('name')
+
+    # if name_or_id is None:
+    #     raise ValidationError({'id': _('Missing value')})
+
+    # pkg = model.Package.get(name_or_id)
+    # if pkg is None:
+    #     raise NotFound(_('Package was not found.'))
+    # context["package"] = pkg
+
+    # if g.userobj:
+    #     user_id = g.userobj.id
+    # else:
+    #     user_id = 'not logged in'
+    # breakpoint()
+    # activity = pkg.activity_stream_item('changed1', user_id)
+    # session.add(activity)
+    print("==========================================================")
+    print("PACKAGE UPDATE ACTION FROM APPROVAL WORKFLOW EXTENSION")
+    print("==========================================================")
+    return dataset_dict

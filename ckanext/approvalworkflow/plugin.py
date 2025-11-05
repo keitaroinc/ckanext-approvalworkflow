@@ -101,7 +101,8 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
 
     def get_actions(self):
         return {
-            "workflow": actions.workflow
+            "workflow": actions.workflow,
+            'package_update': actions.package_update,
         }
 
     # IAuthFunctions
