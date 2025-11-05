@@ -31,14 +31,14 @@ flatten_to_string_key = logic.flatten_to_string_key
 log = logging.getLogger(__name__)
 
 
-def approval_workflow_settings():
-    context = {
-        u'model': model,
-        u'session': model.Session,
-        u'user': g.user,
-        u'auth_user_obj': g.userobj,
-        u'for_view': True
-    }
+# def approval_workflow_settings():
+#     context = {
+#         u'model': model,
+#         u'session': model.Session,
+#         u'user': g.user,
+#         u'auth_user_obj': g.userobj,
+#         u'for_view': True
+#     }
     # turn on approval workflow
     # who can review a dataset? org admin sysadmin
     # which organizations need approval workflow
@@ -369,62 +369,62 @@ _validate = ckan.lib.navl.dictization_functions.validate
 #     return output
 
 
-class ApprovalEditView(MethodView):
-    def _prepare(self, id, data=None):
-        context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
-            u'save': u'save' in request.form
-        }
-        return context
+# class ApprovalEditView(MethodView):
+#     def _prepare(self, id, data=None):
+#         context = {
+#             u'model': model,
+#             u'session': model.Session,
+#             u'user': g.user,
+#             u'auth_user_obj': g.userobj,
+#             u'save': u'save' in request.form
+#         }
+#         return context
 
-    def post(self, package_type, id):
-        context = self._prepare(id)
-        package_type = _get_package_type(id) or package_type
-        log.debug(u'Package save request name: %s POST: %r', id, request.form)
-        try:
-            data_dict = clean_dict(
-                dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
-            )
-        except dict_fns.DataError:
-            return base.abort(400, _(u'Integrity Error'))
-        try:
-            if u'_ckan_phase' in data_dict:
-                # we allow partial updates to not destroy existing resources
-                context[u'allow_partial_update'] = True
-                if u'tag_string' in data_dict:
-                    data_dict[u'tags'] = ckan.views.dataset._tag_string_to_list(
-                        data_dict[u'tag_string']
-                    )
-                del data_dict[u'_ckan_phase']
-                del data_dict[u'save']
-            context[u'message'] = data_dict.get(u'log_message', u'')
-            data_dict['id'] = id
-            data_dict['state'] = 'active'
-            pkg_dict = get_action(u'package_update')(context, data_dict)
+#     def post(self, package_type, id):
+#         context = self._prepare(id)
+#         package_type = _get_package_type(id) or package_type
+#         log.debug(u'Package save request name: %s POST: %r', id, request.form)
+#         try:
+#             data_dict = clean_dict(
+#                 dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
+#             )
+#         except dict_fns.DataError:
+#             return base.abort(400, _(u'Integrity Error'))
+#         try:
+#             if u'_ckan_phase' in data_dict:
+#                 # we allow partial updates to not destroy existing resources
+#                 context[u'allow_partial_update'] = True
+#                 if u'tag_string' in data_dict:
+#                     data_dict[u'tags'] = ckan.views.dataset._tag_string_to_list(
+#                         data_dict[u'tag_string']
+#                     )
+#                 del data_dict[u'_ckan_phase']
+#                 del data_dict[u'save']
+#             context[u'message'] = data_dict.get(u'log_message', u'')
+#             data_dict['id'] = id
+#             data_dict['state'] = 'active'
+#             pkg_dict = get_action(u'package_update')(context, data_dict)
 
-            return ckan.views.dataset._form_save_redirect(
-                pkg_dict[u'name'], u'edit', package_type=package_type
-            )
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to read package %s') % id)
-        except NotFound:
-            return base.abort(404, _(u'Dataset not found'))
-        except SearchIndexError as e:
-            try:
-                exc_str = text_type(repr(e.args))
-            except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
-            return base.abort(
-                500,
-                _(u'Unable to update search index.') + exc_str
-            )
-        except ValidationError as e:
-            errors = e.error_dict
-            error_summary = e.error_summary
-            return self.get(package_type, id, data_dict, errors, error_summary)
+#             return ckan.views.dataset._form_save_redirect(
+#                 pkg_dict[u'name'], u'edit', package_type=package_type
+#             )
+#         except NotAuthorized:
+#             return base.abort(403, _(u'Unauthorized to read package %s') % id)
+#         except NotFound:
+#             return base.abort(404, _(u'Dataset not found'))
+#         except SearchIndexError as e:
+#             try:
+#                 exc_str = text_type(repr(e.args))
+#             except Exception:  # We don't like bare excepts
+#                 exc_str = text_type(str(e))
+#             return base.abort(
+#                 500,
+#                 _(u'Unable to update search index.') + exc_str
+#             )
+#         except ValidationError as e:
+#             errors = e.error_dict
+#             error_summary = e.error_summary
+#             return self.get(package_type, id, data_dict, errors, error_summary)
 
 
 # def register_dataset_plugin_rules(blueprint):
