@@ -36,7 +36,6 @@ class CreateView(resource.CreateView):
             dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
         ))
         del data[u'save']
-        resource_id = data.pop(u'id')
 
         context = {
             u'model': model,
@@ -44,14 +43,6 @@ class CreateView(resource.CreateView):
             u'user': g.user,
             u'auth_user_obj': g.userobj
         }
-
-        data_provided = False
-        for key, value in six.iteritems(data):
-            if (
-                    (value or isinstance(value, cgi.FieldStorage))
-                    and key != u'resource_type'):
-                data_provided = True
-                break
 
         if save_action == u'review':
             # XXX race condition if another user edits/deletes
@@ -61,13 +52,13 @@ class CreateView(resource.CreateView):
                 dict(data_dict, state=u'pending')
             )
             import ckanext.approvalworkflow.email as email
-            user = get_sysadmins()
+            users = get_sysadmins()
 
             org = get_action(u'organization_show')(context, {u'id': data_dict['owner_org']})
-            for user in user:
+            for user in users:
                 if user.email:
                     email.send_approval_needed(user, org, data_dict)
-            return h.redirect_to(u'{}.read'.format(package_type), id=id)         
+            return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
         else:
             return super(CreateView, self).post(package_type, id)
@@ -77,7 +68,7 @@ class CreateView(resource.CreateView):
 
 
 def get_sysadmins():
-    q = model.Session.query(model.User).filter(model.User.sysadmin == True,
+    q = model.Session.query(model.User).filter(model.User.sysadmin is True,
                                                model.User.state == 'active')
     return q.all()
 
