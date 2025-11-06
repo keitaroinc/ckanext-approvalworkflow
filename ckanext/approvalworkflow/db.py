@@ -21,7 +21,7 @@ metadata = sa.MetaData()
 
 approval_workflow_table = None
 approval_workflow_organization_table = None
-
+approval_workflow_dataset_table = None
 
 types = sa.types
 
@@ -48,6 +48,17 @@ approval_workflow_organization_table = sa.Table(
     sa.Column('org_approval_workflow_active', types.UnicodeText, default=u'{}'),
     sa.Column('created', types.DateTime, default=datetime.datetime.utcnow),
     sa.Column('modified', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('extras', types.UnicodeText, default=u'{}'),
+    extend_existing=True
+    )
+
+approval_workflow_dataset_table = sa.Table(
+    'ckanext_approvalworkflow_dataset', model.meta.metadata,
+    sa.Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
+    sa.Column('package_id', types.UnicodeText, default=False),
+    sa.Column('user_id', types.UnicodeText, default=False),
+    sa.Column('timestamp', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('notes', types.UnicodeText, default=u'{}'),
     sa.Column('extras', types.UnicodeText, default=u'{}'),
     extend_existing=True
     )
@@ -101,7 +112,6 @@ meta.mapper(
     approval_workflow_organization_table, properties={'approval_workflow_id': relationship (ApprovalWorkflow)}
 )
 
-
 def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
     result_dict = {}
@@ -143,9 +153,11 @@ def init_db():
     engine = model.Session.bind or model.meta.engine
     approval_workflow_table.create(engine, checkfirst=True)
     approval_workflow_organization_table.create(engine, checkfirst=True)
+    approval_workflow_dataset_table.create(engine, checkfirst=True)
 
 
 def drop_db():
     engine = model.Session.bind or model.meta.engine
     approval_workflow_organization_table.drop(engine, checkfirst=True)
     approval_workflow_table.drop(engine, checkfirst=True)
+    approval_workflow_dataset_table.drop(engine, checkfirst=True)
