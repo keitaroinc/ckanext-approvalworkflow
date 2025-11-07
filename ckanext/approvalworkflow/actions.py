@@ -3,6 +3,8 @@ import ckan.plugins.toolkit as toolkit
 import ckan.plugins as p
 import ckanext.approvalworkflow.db as db
 import ckan.logic as logic
+import datetime
+from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
 
 ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
@@ -100,26 +102,29 @@ def save_org_workflow_options(self, context, data_dict):
 @p.toolkit.chained_action
 def package_update(up_func, context, data_dict):
     dataset_dict = up_func(context, data_dict)
-    # name_or_id = data_dict.get('id') or data_dict.get('name')
-    # model = context['model']
+
     # session = context['session']
-    # name_or_id = data_dict.get('id') or data_dict.get('name')
-
-    # if name_or_id is None:
-    #     raise ValidationError({'id': _('Missing value')})
-
-    # pkg = model.Package.get(name_or_id)
-    # if pkg is None:
-    #     raise NotFound(_('Package was not found.'))
-    # context["package"] = pkg
 
     # if g.userobj:
     #     user_id = g.userobj.id
     # else:
     #     user_id = 'not logged in'
-    # breakpoint()
-    # activity = pkg.activity_stream_item('changed1', user_id)
-    # session.add(activity)
+    # # breakpoint()
+    # # activity = pkg.activity_stream_item('changed1', user_id)
+    # # session.add(activity)
+
+    # try:
+    #     activity_workflow_dataset = ApprovalWorkflowDataset()
+    #     activity_workflow_dataset.id = data_dict['id']
+    #     activity_workflow_dataset.user_id = user_id
+    #     activity_workflow_dataset.timestamp = str(datetime.datetime.now())
+    #     session.add(activity_workflow_dataset)
+    #     session.commit()
+    
+    # except Exception as e:
+    #     # log.error(f"Error saving approval workflow dataset: {e}")
+    #     session.rollback()
+
     print("==========================================================")
     print("PACKAGE UPDATE ACTION FROM APPROVAL WORKFLOW EXTENSION")
     print("==========================================================")

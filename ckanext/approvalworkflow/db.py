@@ -105,12 +105,19 @@ class ApprovalWorkflowOrganization(DomainObject):
         return query.all()
 
 
-meta.mapper(ApprovalWorkflow, approval_workflow_table, properties={})
+class ApprovalWorkflowDataset(DomainObject):
 
+    def __init__(self, **kwargs):
+        self.id = make_uuid()
+
+
+meta.mapper(ApprovalWorkflow, approval_workflow_table, properties={})
+meta.mapper(ApprovalWorkflowDataset, approval_workflow_dataset_table, properties={})
 meta.mapper(
     ApprovalWorkflowOrganization,
     approval_workflow_organization_table, properties={'approval_workflow_id': relationship (ApprovalWorkflow)}
 )
+
 
 def table_dictize(obj, context, **kw):
     '''Get any model object and represent it as a dict'''
