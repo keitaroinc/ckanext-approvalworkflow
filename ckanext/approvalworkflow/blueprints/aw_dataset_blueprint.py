@@ -63,6 +63,8 @@ class EditView_(dataset.EditView):
                 del data_dict[u'_ckan_phase']
                 del data_dict[u'save']
             data_dict['id'] = id
+            breakpoint()
+            data_dict['state'] = 'active'
             pkg_dict = get_action(u'package_update')(context, data_dict)
 
             return dataset._form_save_redirect(
