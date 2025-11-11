@@ -1,0 +1,13 @@
+{% extends 'package/edit_base.html' %}
+{% import 'macros/form.html' as form %}
+
+
+{% block primary_content_inner %}
+    {{ form.markdown('desc', id='field-approval-notes', label=_('Approval Notes'), value="", error="") }}
+    <a class="btn btn-danger pull-left" href="www.google.com">{{ _('Reject') }}</a>
+    <a class="btn btn-success pull-right" href="www.google.com">{{ _('Approve') }}</a>
+{% endblock %}
+
+{% block secondary_content %}
+    {% snippet 'package/snippets/info.html', pkg=pkg, hide_follow_button=true %}
+{% endblock %}
