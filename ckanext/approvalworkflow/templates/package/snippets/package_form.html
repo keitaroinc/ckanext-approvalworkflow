@@ -35,7 +35,9 @@
 {% endblock %}
 
 {% block approval_button %}
-<a class="btn btn-primary pull-right" href="{% url_for dataset_approval_workflow ~ '.datasetapproval', id=data.id %}">{{ _('Dataset Approval') }}</a>
+    {% if form_style == 'edit' %}
+        <a class="btn btn-primary pull-right" href="/dataset/datasetapproval/{{ data.id }}">{{ _('Dataset Approval') }}</a>
+    {% endif %}
 {% endblock %}
 
 {% endblock %}
