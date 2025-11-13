@@ -153,7 +153,7 @@ class DatasetApproval(MethodView):
         }
         get_action(u'approval_activity_create')(context, data_dict)
 
-        h.flash_notice(_(u'Dataset has been approved and is now active'))
+        h.flash_notice(_(u'Dataset has been {}.'.format(submitted_action)))
         return h.redirect_to(u'dataset.search')
 
 

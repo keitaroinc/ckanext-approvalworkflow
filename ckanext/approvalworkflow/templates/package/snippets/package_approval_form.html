@@ -7,7 +7,7 @@
     {{ h.csrf_input() }}
     {{ form.markdown('approval-notes', id='approval-notes', label=_('Approval Notes'), value="", error="") }}
     <button class="btn btn-danger pull-left" type="submit" name="action" value="rejected">{{ _('Reject') }}</button>
-    <button class="btn btn-success pull-right" type="submit" name="action" value="approve">{{ _('Approve') }}</button>
+    <button class="btn btn-success pull-right" type="submit" name="action" value="approved">{{ _('Approve') }}</button>
 </form>
 {% endblock %}
 
