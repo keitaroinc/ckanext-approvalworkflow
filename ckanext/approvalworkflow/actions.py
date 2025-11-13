@@ -145,6 +145,7 @@ def approval_activity_create(context, data_dict):
         activity_workflow_dataset.package_id = data_dict['id']
         activity_workflow_dataset.user_name = user_name
         activity_workflow_dataset.timestamp = str(datetime.datetime.now())
+        activity_workflow_dataset.status = 'approved'
         session.add(activity_workflow_dataset)
         session.commit()
     
