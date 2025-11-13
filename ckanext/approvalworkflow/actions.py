@@ -131,21 +131,22 @@ def package_update(up_func, context, data_dict):
     print("==========================================================")
     return dataset_dict
 
+
 def approval_activity_create(context, data_dict):
     session = context.get('session')
-    userobj = context.get('auth_user_obj')
     if g.userobj:
         user_name = g.userobj.name
     else:
-        user_id = 'not logged in'
+        user_name = 'not logged in'
 
     try:
         activity_workflow_dataset = ApprovalWorkflowDataset()
         activity_workflow_dataset.id = make_uuid()
-        activity_workflow_dataset.package_id = data_dict['id']
+        activity_workflow_dataset.package_id = data_dict['package_id']
         activity_workflow_dataset.user_name = user_name
         activity_workflow_dataset.timestamp = str(datetime.datetime.now())
-        activity_workflow_dataset.status = 'approved'
+        activity_workflow_dataset.status = data_dict['submitted_action']
+        activity_workflow_dataset.approval_notes = data_dict['approval-notes']
         session.add(activity_workflow_dataset)
         session.commit()
     

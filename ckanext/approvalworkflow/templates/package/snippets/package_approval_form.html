@@ -5,8 +5,8 @@
 {% block primary_content_inner %}
 <form method="post" action="{{ action }}"">
     {{ h.csrf_input() }}
-    {{ form.markdown('desc', id='field-approval-notes', label=_('Approval Notes'), value="", error="") }}
-    <button class="btn btn-danger pull-left" type="submit" name="action" value="reject">{{ _('Reject') }}</button>
+    {{ form.markdown('approval-notes', id='approval-notes', label=_('Approval Notes'), value="", error="") }}
+    <button class="btn btn-danger pull-left" type="submit" name="action" value="rejected">{{ _('Reject') }}</button>
     <button class="btn btn-success pull-right" type="submit" name="action" value="approve">{{ _('Approve') }}</button>
 </form>
 {% endblock %}

@@ -6,6 +6,7 @@ from ckan.types import Response
 import logging
 import ckan.lib.base as base
 import ckan.lib.helpers as h
+import ckan.plugins.toolkit as tk
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.logic as logic
 import ckan.model as model
@@ -135,7 +136,7 @@ class DatasetApproval(MethodView):
         try:
             pkg = get_action(u'package_show')(context, {u'id': id})
             pkg['state'] = u'active'
-            pkg_dict = get_action(u'package_update')(context, pkg)
+            get_action(u'package_update')(context, pkg)
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except NotAuthorized:
@@ -143,7 +144,14 @@ class DatasetApproval(MethodView):
                 403,
                 _(u'Unauthorized to edit package %s') % u''
             )
-        approval_dict = get_action(u'approval_activity_create')(context, pkg)
+        submitted_action = tk.request.form.get('action')
+        approval_notes = tk.request.form.get('approval-notes')
+        data_dict = {
+            'package_id': pkg['id'],
+            'approval-notes': approval_notes,
+            'submitted_action': submitted_action
+        }
+        get_action(u'approval_activity_create')(context, data_dict)
 
         h.flash_notice(_(u'Dataset has been approved and is now active'))
         return h.redirect_to(u'dataset.search')

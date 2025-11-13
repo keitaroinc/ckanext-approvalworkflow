@@ -60,7 +60,6 @@ approval_workflow_dataset_table = sa.Table(
     sa.Column('user_name', types.UnicodeText, default=False),
     sa.Column('timestamp', types.DateTime, default=datetime.datetime.utcnow),
     sa.Column('approval_notes', types.UnicodeText, default=u'{}'),
-    sa.Column('approval_extras', types.UnicodeText, default=u'{}'),
     extend_existing=True
     )
 
