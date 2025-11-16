@@ -41,58 +41,58 @@ dataset_approval_workflow = Blueprint(
 )
 
 
-class ApprovalWorkflowRejectView(MethodView):
-    def _prepare(self):
-        context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
-        }
-        return context
+# class ApprovalWorkflowRejectView(MethodView):
+#     def _prepare(self):
+#         context = {
+#             u'model': model,
+#             u'session': model.Session,
+#             u'user': g.user,
+#             u'auth_user_obj': g.userobj
+#         }
+#         return context
 
-    def post(self, package_type, id):
-        if u'cancel' in request.form:
-            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
-        context = self._prepare()
-        try:
-            pkg = get_action(u'package_show')(context, {u'id': id})
-            pkg['state'] = u'draft'
-            pkg_dict = get_action(u'package_update')(context, pkg)
-        except NotFound:
-            return base.abort(404, _(u'Dataset not found'))
-        except NotAuthorized:
-            return base.abort(
-                403,
-                _(u'Unauthorized to edit package %s') % u''
-            )
+#     def post(self, package_type, id):
+#         if u'cancel' in request.form:
+#             return h.redirect_to(u'{}.edit'.format(package_type), id=id)
+#         context = self._prepare()
+#         try:
+#             pkg = get_action(u'package_show')(context, {u'id': id})
+#             pkg['state'] = u'draft'
+#             pkg_dict = get_action(u'package_update')(context, pkg)
+#         except NotFound:
+#             return base.abort(404, _(u'Dataset not found'))
+#         except NotAuthorized:
+#             return base.abort(
+#                 403,
+#                 _(u'Unauthorized to edit package %s') % u''
+#             )
 
-        h.flash_notice(_(u'Dataset has been rejected. Saved as Draft'))
-        return h.redirect_to(u'dataset.search')
+#         h.flash_notice(_(u'Dataset has been rejected. Saved as Draft'))
+#         return h.redirect_to(u'dataset.search')
 
-    def get(self, package_type, id):
-        context = self._prepare()
-        try:
-            pkg_dict = get_action(u'package_show')(context, {u'id': id})
-        except NotFound:
-            return base.abort(404, _(u'Dataset not found'))
-        except NotAuthorized:
-            return base.abort(
-                403,
-                _(u'Unauthorized to delete package %s') % u''
-            )
+#     def get(self, package_type, id):
+#         context = self._prepare()
+#         try:
+#             pkg_dict = get_action(u'package_show')(context, {u'id': id})
+#         except NotFound:
+#             return base.abort(404, _(u'Dataset not found'))
+#         except NotAuthorized:
+#             return base.abort(
+#                 403,
+#                 _(u'Unauthorized to delete package %s') % u''
+#             )
 
-        dataset_type = pkg_dict[u'type'] or package_type
+#         dataset_type = pkg_dict[u'type'] or package_type
 
-        # TODO: remove
-        g.pkg_dict = pkg_dict
+#         # TODO: remove
+#         g.pkg_dict = pkg_dict
 
-        return base.render(
-            u'package/confirm_reject.html', {
-                u'pkg_dict': pkg_dict,
-                u'dataset_type': dataset_type
-            }
-        )
+#         return base.render(
+#             u'package/confirm_reject.html', {
+#                 u'pkg_dict': pkg_dict,
+#                 u'dataset_type': dataset_type
+#             }
+#         )
 
 
 class DatasetApproval(MethodView):
@@ -132,11 +132,20 @@ class DatasetApproval(MethodView):
         )
 
     def post(self, package_type, id):
+
         context = self._prepare()
+        approval_notes = tk.request.form.get('approval-notes')
+        submitted_action = tk.request.form.get('action')
+        # if u'cancel' in request.form:
+        #     return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         try:
             pkg = get_action(u'package_show')(context, {u'id': id})
-            pkg['state'] = u'active'
-            get_action(u'package_update')(context, pkg)
+            if submitted_action == 'approved':
+                pkg['state'] = u'active'
+                get_action(u'package_update')(context, pkg)
+            elif submitted_action == 'rejected':
+                pkg['state'] = u'draft'
+                get_action(u'package_update')(context, pkg)
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except NotAuthorized:
@@ -144,8 +153,6 @@ class DatasetApproval(MethodView):
                 403,
                 _(u'Unauthorized to edit package %s') % u''
             )
-        submitted_action = tk.request.form.get('action')
-        approval_notes = tk.request.form.get('approval-notes')
         data_dict = {
             'package_id': pkg['id'],
             'approval-notes': approval_notes,
@@ -157,9 +164,9 @@ class DatasetApproval(MethodView):
         return h.redirect_to(u'dataset.search')
 
 
-dataset_approval_workflow.add_url_rule(
-    u'/reject/<id>', view_func=ApprovalWorkflowRejectView.as_view(str(u'reject'))
-)
+# dataset_approval_workflow.add_url_rule(
+#     u'/reject/<id>', view_func=ApprovalWorkflowRejectView.as_view(str(u'reject'))
+# )
 
 dataset_approval_workflow.add_url_rule(
     u'/datasetapproval/<id>',
