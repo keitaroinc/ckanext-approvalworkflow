@@ -35,8 +35,22 @@
 {% endblock %}
 
 {% block approval_button %}
-    {% if form_style == 'edit' %}
-        <a class="btn btn-primary pull-right" href="/dataset/datasetapproval/{{ data.id }}">{{ _('Dataset Approval') }}</a>
+    {% if form_style == 'edit'%}
+        {% set aw = h.get_approvalworkflow_info({}) %}
+        {% set aw_pkg = h.get_approvalworkflow_org_info({}, data.id) %}
+        {% set org_admin = h.is_user_org_admin(aw_pkg['organization_id']) or g.userobj.sysadmin %}
+        {% set review_button = false %}
+        {% if aw['approval_workflow_active'] == '2' %}
+            {% set review_button = true %}
+        {% endif %}
+        {% if aw['approval_workflow_active'] == '3' and aw_pkg['active'] == true %}
+            {% set review_button = true %}
+        {% endif %}
+
+        {% if review_button and org_admin %}
+            <a class="btn btn-primary pull-right" href="/dataset/datasetapproval/{{ data.id }}">{{ _('Dataset Approval') }}</a>
+        {% endif %}
+        
     {% endif %}
 {% endblock %}
 

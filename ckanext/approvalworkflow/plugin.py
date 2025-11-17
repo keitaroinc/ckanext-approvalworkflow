@@ -111,7 +111,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
 
     def get_auth_functions(self):
         return {
-            "workflow": auth.workflow
+            "workflow": auth.workflow,
         }
 
     def get_helpers(self):

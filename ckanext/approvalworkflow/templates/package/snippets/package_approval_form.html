@@ -3,6 +3,8 @@
 
 
 {% block primary_content_inner %}
+
+{{ org_admin }}
 <form method="post" action="{{ action }}"">
     {{ h.csrf_input() }}
     {{ form.markdown('approval-notes', id='approval-notes', label=_('Approval Notes'), value="", error="") }}
