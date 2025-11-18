@@ -115,7 +115,49 @@ class DatasetApproval(MethodView):
         return h.redirect_to(u'dataset.search')
 
 
+class ApprovalStream(MethodView):
+
+    def _prepare(self):
+        context = {
+            u'model': model,
+            u'session': model.Session,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj,
+        }
+
+        return context
+
+    def get(self, package_type, id):
+        context = self._prepare()
+        package_type = _get_package_type(id) or package_type
+        try:
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
+        except NotFound:
+            return base.abort(404, _(u'Dataset not found'))
+        except NotAuthorized:
+            return base.abort(
+                403,
+                _(u'Unauthorized to edit package %s') % u''
+            )
+        approval_stream = get_action(u'approval_activity_read')(context, pkg_dict['id'])
+        return base.render(
+            u'package/approval_stream.html',
+            {
+                u'pkg_dict': pkg_dict,
+                u'approval_stream': approval_stream
+            }
+        )
+
+    def post(self, package_type, id):
+        pass
+
+
 dataset_approval_workflow.add_url_rule(
     u'/datasetapproval/<id>',
     view_func=DatasetApproval.as_view(str(u'datasetapproval'))
+)
+
+dataset_approval_workflow.add_url_rule(
+    u'/datasetapproval/activity/<id>',
+    view_func=ApprovalStream.as_view(str(u'approvalstream'))
 )

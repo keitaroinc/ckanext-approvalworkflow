@@ -1,0 +1,45 @@
+{% extends "package/read_base.html" %}
+
+{% block subtitle %}{{ _('Approval Stream') }} {{ g.template_title_delimiter }} {{ super() }}{% endblock %}
+
+{% block primary_content_inner %}
+<div class="approval-stream">
+    <table class="table table-striped table-bordered table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Username</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in approval_stream %}
+            <tr>
+                <td>{{ item.user_name }}</td>
+
+                <!-- Status badge -->
+                <td>
+                    {% if item.status == 'approved' %}
+                        <span class="badge bg-success">{{ item.status }}</span>
+                    {% elif item.status == 'pending' %}
+                        <span class="badge bg-warning text-dark">{{ item.status }}</span>
+                    {% elif item.status == 'rejected' %}
+                        <span class="badge bg-danger">{{ item.status }}</span>
+                    {% else %}
+                        <span class="badge bg-secondary">{{ item.status }}</span>
+                    {% endif %}
+                </td>
+
+                <td>{{ item.approval_notes }}</td>
+                <td>{{ item.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    
+    {% if approval_stream|length == 0 %}
+        <p>{{ _('No approval activities found for this dataset.') }}</p>
+    {% endif %}
+</div>
+{% endblock %}

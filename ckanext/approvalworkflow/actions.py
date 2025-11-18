@@ -94,7 +94,7 @@ def save_org_workflow_options(self, context, data_dict):
             db_model.approval_workflow_id = approval_workflow
             db_model.org_approval_workflow_active = aw_active
             db_model.organization_id = organization
-            db_model.deactivate_edit = False     
+            db_model.deactivate_edit = False
 
         db_model.save()
     return
@@ -121,7 +121,7 @@ def package_update(up_func, context, data_dict):
     #     activity_workflow_dataset.timestamp = str(datetime.datetime.now())
     #     session.add(activity_workflow_dataset)
     #     session.commit()
-    
+
     # except Exception as e:
     #     # log.error(f"Error saving approval workflow dataset: {e}")
     #     session.rollback()
@@ -149,9 +149,23 @@ def approval_activity_create(context, data_dict):
         activity_workflow_dataset.approval_notes = data_dict['approval-notes']
         session.add(activity_workflow_dataset)
         session.commit()
-    
+
     except Exception as e:
         # log.error(f"Error saving approval workflow dataset: {e}")
         session.rollback()
 
     return
+
+
+def approval_activity_read(context, package_id):
+
+    session = context.get("session")
+
+    approval_stream = (
+        session.query(ApprovalWorkflowDataset)
+        .filter_by(package_id=package_id)
+        .order_by(ApprovalWorkflowDataset.timestamp.desc())
+        .all()
+    )
+
+    return approval_stream

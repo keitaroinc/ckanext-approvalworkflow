@@ -56,10 +56,10 @@ approval_workflow_dataset_table = sa.Table(
     'ckanext_approvalworkflow_dataset', model.meta.metadata,
     sa.Column('id', types.UnicodeText, primary_key=True, default=make_uuid),
     sa.Column('package_id', types.UnicodeText, default=False),
-    sa.Column('status', types.UnicodeText, default=u'{}'),
     sa.Column('user_name', types.UnicodeText, default=False),
-    sa.Column('timestamp', types.DateTime, default=datetime.datetime.utcnow),
+    sa.Column('status', types.UnicodeText, default=u'{}'),
     sa.Column('approval_notes', types.UnicodeText, default=u'{}'),
+    sa.Column('timestamp', types.DateTime, default=datetime.datetime.utcnow),
     extend_existing=True
     )
 

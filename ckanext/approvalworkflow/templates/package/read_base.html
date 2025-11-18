@@ -1,0 +1,7 @@
+{% ckan_extends %}
+
+{% block content_primary_nav %}
+  {{ super() }}
+  {# {{ h.build_nav_icon('activity.package_activity', _('Approval Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock') }} #}
+  {{ h.build_nav_icon('dataset_approval_workflow.approvalstream', _('Approval Stream'), id=pkg.id, icon='check-square') }}
+{% endblock content_primary_nav %}
