@@ -7,7 +7,7 @@
     <table class="table table-striped table-bordered table-hover align-middle">
         <thead class="table-light">
             <tr>
-                <th>Username</th>
+                <th>User</th>
                 <th>Status</th>
                 <th>Notes</th>
                 <th>Timestamp</th>
@@ -16,7 +16,7 @@
         <tbody>
             {% for item in approval_stream %}
             <tr>
-                <td>{{ item.user_name }}</td>
+                <td>{{ item.user_id }}</td>
 
                 <!-- Status badge -->
                 <td>
