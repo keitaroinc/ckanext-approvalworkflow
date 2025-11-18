@@ -6,6 +6,7 @@ import ckan.logic as logic
 import datetime
 from ckan.model.types import make_uuid
 from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
+from ckanext.approvalworkflow import helpers
 
 ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
@@ -102,33 +103,18 @@ def save_org_workflow_options(self, context, data_dict):
 
 @p.toolkit.chained_action
 def package_update(up_func, context, data_dict):
+
+    if data_dict[u'owner_org'] is None:
+        org_admin = g.userobj.sysadmin
+    else:
+        org_admin = helpers.is_user_org_admin(
+            data_dict[u'owner_org']) or g.userobj.sysadmin
+
+    if org_admin:
+        pass
+    else:
+        data_dict['state'] = 'pending'
     dataset_dict = up_func(context, data_dict)
-
-    # session = context['session']
-
-    # if g.userobj:
-    #     user_id = g.userobj.id
-    # else:
-    #     user_id = 'not logged in'
-    # # breakpoint()
-    # # activity = pkg.activity_stream_item('changed1', user_id)
-    # # session.add(activity)
-
-    # try:
-    #     activity_workflow_dataset = ApprovalWorkflowDataset()
-    #     activity_workflow_dataset.id = data_dict['id']
-    #     activity_workflow_dataset.user_id = user_id
-    #     activity_workflow_dataset.timestamp = str(datetime.datetime.now())
-    #     session.add(activity_workflow_dataset)
-    #     session.commit()
-
-    # except Exception as e:
-    #     # log.error(f"Error saving approval workflow dataset: {e}")
-    #     session.rollback()
-
-    print("==========================================================")
-    print("PACKAGE UPDATE ACTION FROM APPROVAL WORKFLOW EXTENSION")
-    print("==========================================================")
     return dataset_dict
 
 

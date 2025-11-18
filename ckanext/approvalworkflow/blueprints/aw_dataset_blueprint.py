@@ -59,9 +59,8 @@ class DatasetApproval(MethodView):
             )
 
         dataset_type = pkg_dict[u'type'] or package_type
-        # org_admin = h.is_user_org_admin(
-        #     pkg_dict[u'organization'][u'id']) or g.userobj.sysadmin
-        org_admin = helpers.is_user_org_admin(pkg_dict[u'organization'][u'id'])
+        org_admin = helpers.is_user_org_admin(
+            pkg_dict[u'organization'][u'id']) or g.userobj.sysadmin
         if not org_admin:
             return base.abort(
                 403,
