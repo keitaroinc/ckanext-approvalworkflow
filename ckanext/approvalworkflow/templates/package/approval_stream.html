@@ -16,7 +16,7 @@
         <tbody>
             {% for item in approval_stream %}
             <tr>
-                <td>{{ item.user_id }}</td>
+                <td>{{ h.linked_user(item.user_id, 0, 30) }}</td>
 
                 <!-- Status badge -->
                 <td>
