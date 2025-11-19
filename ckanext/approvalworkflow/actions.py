@@ -4,6 +4,7 @@ import ckan.plugins as p
 import ckanext.approvalworkflow.db as db
 import ckan.logic as logic
 import datetime
+import logging
 from ckan.model.types import make_uuid
 from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
 from ckanext.approvalworkflow import helpers
@@ -11,19 +12,20 @@ from ckanext.approvalworkflow import helpers
 ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
 NotFound = logic.NotFound
+log = logging.getLogger(__name__)
 
 
 def workflow(self, context):
-    session = context.get('session')
-    approval_workflow = ApprovalWorkflow()
+    # session = context.get('session')
+    # approval_workflow = ApprovalWorkflow()
 
     return
 
 
 def save_workflow_options(self, context, data_dict):
-    session = context.get('session')
+    # session = context.get('session')
     userobj = context.get("auth_user_obj", None)
-    model = context.get("model")
+    # model = context.get("model")
 
     if not userobj:
         raise NotFound(toolkit._('User not found'))
@@ -65,7 +67,7 @@ def save_workflow_options(self, context, data_dict):
 
 
 def save_org_workflow_options(self, context, data_dict):
-    session = context.get('session')
+    # session = context.get('session')
     userobj = context.get("auth_user_obj", None)
     organization = data_dict['organization']
 
@@ -75,7 +77,7 @@ def save_org_workflow_options(self, context, data_dict):
     approval_workflow = db.ApprovalWorkflow().get()
 
     if approval_workflow:
-        aw_dict = db.table_dictize(approval_workflow, context)
+        # aw_dict = db.table_dictize(approval_workflow, context)
 
         db_model = db.ApprovalWorkflowOrganization.get(organization_id=organization)
 
@@ -137,7 +139,7 @@ def approval_activity_create(context, data_dict):
         session.commit()
 
     except Exception as e:
-        # log.error(f"Error saving approval workflow dataset: {e}")
+        log.error(f"Error saving approval workflow dataset: {e}")
         session.rollback()
 
     return

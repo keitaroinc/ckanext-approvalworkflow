@@ -80,7 +80,7 @@ class ApprovalWorkflow(DomainObject):
 
         query = model.Session.query(cls).autoflush(False)
         query = query.filter_by(**kw)
-        if approval_workflow:
+        if approval_workflow: #noqa
             query = query.order_by(sa.cast(cls.approval_workflow, sa.Integer)).filter(cls.approval_workflow != '')
         else:
             query = query.order_by(cls.created.desc())
@@ -89,7 +89,7 @@ class ApprovalWorkflow(DomainObject):
 
 class ApprovalWorkflowOrganization(DomainObject):
     def __init__(self, **kwargs):
-        self.id=make_uuid()
+        self.id = make_uuid()
 
     @classmethod
     def get(cls, **kw):
@@ -115,7 +115,8 @@ meta.mapper(ApprovalWorkflow, approval_workflow_table, properties={})
 meta.mapper(ApprovalWorkflowDataset, approval_workflow_dataset_table, properties={})
 meta.mapper(
     ApprovalWorkflowOrganization,
-    approval_workflow_organization_table, properties={'approval_workflow_id': relationship (ApprovalWorkflow)}
+    approval_workflow_organization_table,
+    properties={'approval_workflow_id': relationship(ApprovalWorkflow)}
 )
 
 

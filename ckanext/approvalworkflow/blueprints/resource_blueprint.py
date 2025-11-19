@@ -1,7 +1,5 @@
 # Resource related blueprint
-# Overriding Resource functions
-import six
-import cgi
+# Overriding Resource functions to add approval workflow functionality
 from flask import Blueprint
 from ckan.common import g, request
 import ckan.lib.helpers as h

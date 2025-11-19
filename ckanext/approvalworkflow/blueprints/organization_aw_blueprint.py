@@ -81,17 +81,28 @@ class OrganizationApprovalConfigView(MethodView):
         db_model = db.ApprovalWorkflowOrganization.get(organization_id=group_dict['id'])
         aw_model = db.ApprovalWorkflow.get()
 
-        extra_vars = {u"group_dict": group_dict,
-                    u"group_type": group_type,
-                    u'data_dict': data_dict,
-                    u'data': items}
+        extra_vars = {
+            u"group_dict": group_dict,
+            u"group_type": group_type,
+            u'data_dict': data_dict,
+            u'data': items
+            }
 
         if not aw_model:
-            return tk.render(u'organization/snippets/approval_not_active.html', extra_vars=extra_vars)
-        elif aw_model.active == False:
-            return tk.render(u'organization/snippets/approval_not_active.html', extra_vars=extra_vars)
+            return tk.render(
+                u'organization/snippets/approval_not_active.html',
+                extra_vars=extra_vars
+                )
+        elif aw_model.active is False:
+            return tk.render(
+                u'organization/snippets/approval_not_active.html',
+                extra_vars=extra_vars
+                )
         elif aw_model.approval_workflow_active != '3':
-            return tk.render(u'organization/snippets/approval_not_active.html', extra_vars=extra_vars)
+            return tk.render(
+                u'organization/snippets/approval_not_active.html',
+                extra_vars=extra_vars
+                )
         else:
             if db_model:
                 model_dict = db.table_dictize(db_model, context)
@@ -191,9 +202,11 @@ def index(data=None, id=None):
     }
 
     data_dict = {u'user_obj': g.userobj, u'id': id}
-    extra_vars = _extra_template_variables(context, data_dict)
+    extra_vars = _extra_template_variables(context, data_dict) # noqa
 
     if tk.request.method == 'POST' and not data:
         return
 
-    return tk.render(u'organization/snippets/org_approval_form.html', extra_vars=extra_vars)
+    return tk.render(
+        u'organization/snippets/org_approval_form.html',
+        extra_vars=extra_vars)

@@ -1,7 +1,7 @@
 import ckantoolkit as tk
 import ckan.plugins as p
 
-config = ckantoolkit.config
+config = tk.config
 
 _ = p.toolkit._
 

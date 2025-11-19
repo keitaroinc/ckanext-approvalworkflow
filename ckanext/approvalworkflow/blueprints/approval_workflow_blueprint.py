@@ -143,7 +143,7 @@ def index(data=None):
     extra_vars['data'] = data
 
     if tk.request.method == 'POST' and not data:
-        print(POST)
+        log.info('No data received in POST request')
 
     return tk.render('approval_workflow/index.html', extra_vars=extra_vars)
 
@@ -165,7 +165,7 @@ def datasets():
     if approval_workflow:
         approval_workflow = db.table_dictize(approval_workflow, context)
 
-        if approval_workflow['active'] == True:
+        if approval_workflow['active'] is True:
             extra_vars = approval_extra_template_variables(context, data_dict_user)
 
             data_dict = extra_vars['user_dict']
@@ -189,7 +189,7 @@ def datasets():
         return tk.render(u'approval_workflow/snippets/not_active.html', extra_vars=extra_vars)
 
 
-def package_review_search(context, data_dict):
+def package_review_search(context, data_dict): # noqa
     # sometimes context['schema'] is None
     schema = (context.get('schema') or
               logic.schema.default_package_search_schema())
@@ -242,7 +242,7 @@ def package_review_search(context, data_dict):
             data_dict['fl'] = ' '.join(result_fl)
 
         include_private = asbool(data_dict.pop('include_private', False))
-        include_drafts = asbool(data_dict.pop('include_drafts', False))
+        # include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_review = asbool(data_dict.pop('include_review', False))
 
         data_dict.setdefault('fq', '')
@@ -271,7 +271,7 @@ def package_review_search(context, data_dict):
 
         if result_fl:
             for package in query.results:
-                if isinstance(package, text_type):
+                if isinstance(package, str):
                     package = {result_fl[0]: package}
                 extras = package.pop('extras', {})
                 package.update(extras)
@@ -316,8 +316,8 @@ def package_review_search(context, data_dict):
         group_names.extend(facets.get(field_name, {}).keys())
 
     groups = (session.query(model.Group.name, model.Group.title)
-                    .filter(model.Group.name.in_(group_names))
-                    .all()
+                     .filter(model.Group.name.in_(group_names))
+                     .all()
               if group_names else [])
     group_titles_by_name = dict(groups)
 
@@ -456,7 +456,7 @@ def approval_user_show(context, data_dict):
             if include_private_and_draft_datasets:
                 search_dict.update({
                     'include_private': True,
-                    'include_review': True})                
+                    'include_review': True})
             else:
                 search_dict.update({
                     'include_private': True,

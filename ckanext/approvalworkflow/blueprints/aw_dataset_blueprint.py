@@ -9,7 +9,7 @@ import ckan.plugins.toolkit as tk
 import ckan.logic as logic
 import ckan.model as model
 from ckan.common import _, g
-from ckan.views.dataset import  _get_package_type
+from ckan.views.dataset import _get_package_type
 
 
 NotFound = logic.NotFound
