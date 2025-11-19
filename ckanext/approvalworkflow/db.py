@@ -75,12 +75,12 @@ class ApprovalWorkflow(DomainObject):
         return query.filter_by(**kw).first()
 
     @classmethod
-    def approval_workflow(cls, **kw):
+    def approval_workflow(cls, **kw):  # noqa
         '''Finds a single entity in the register.'''
 
         query = model.Session.query(cls).autoflush(False)
         query = query.filter_by(**kw)
-        if approval_workflow: #noqa
+        if approval_workflow:  # noqa
             query = query.order_by(sa.cast(cls.approval_workflow, sa.Integer)).filter(cls.approval_workflow != '')
         else:
             query = query.order_by(cls.created.desc())

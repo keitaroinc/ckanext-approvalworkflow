@@ -187,8 +187,10 @@ def _get_group_dict(id, group_type):
         base.abort(404, _(u'Group not found'))
 
 
-org_approval_workflow.add_url_rule(u'/organization/approval_workflow/<id>', 
-                                   view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow')))
+org_approval_workflow.add_url_rule(
+    u'/organization/approval_workflow/<id>',
+    view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow'))
+    )
 
 
 def index(data=None, id=None):
