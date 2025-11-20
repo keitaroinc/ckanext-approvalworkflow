@@ -38,7 +38,11 @@
     {% endblock %}
   {% else %}
     {% block add_button %}
-      <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+      {% if review_button == true and org_admin == false %}
+          <button class="btn btn-primary" name="save" value="review" type="submit">{{ _('Review') }}</button>
+      {% else %}
+          <button class="btn btn-primary" name="save" value="go-dataset-complete" type="submit">{{ _('Add') }}</button>
+      {% endif %}
     {% endblock %}
   {% endif %}
 
