@@ -2,6 +2,7 @@
 # Overriding Resource functions to add approval workflow functionality
 from flask import Blueprint
 from ckan.common import g, request
+from ckanext.approvalworkflow import helpers
 import ckan.lib.helpers as h
 import ckan.logic as logic
 import ckan.lib.navl.dictization_functions as dict_fns
@@ -50,10 +51,11 @@ class CreateView(resource.CreateView):
                 dict(data_dict, state=u'pending')
             )
             import ckanext.approvalworkflow.email as email
-            users = get_sysadmins()
 
             org = get_action(u'organization_show')(context, {u'id': data_dict['owner_org']})
-            for user in users:
+
+            admins = helpers.get_org_admins_raw(org['id'])
+            for user in admins:
                 if user.email:
                     email.send_approval_needed(user, org, data_dict)
             return h.redirect_to(u'{}.read'.format(package_type), id=id)

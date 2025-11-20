@@ -1,5 +1,6 @@
 import ckanext.approvalworkflow.db as db
 from ckan.plugins import toolkit
+from ckan.model import Member, User, Group, Session
 
 g = toolkit.g
 
@@ -58,3 +59,17 @@ def is_user_org_admin(org_id):
             return True
 
     return False
+
+
+def get_org_admins_raw(org_id):
+    """Return User objects for organization admins of the given org_id"""
+    admins = (
+        Session.query(User)
+        .join(Member, Member.table_id == User.id)
+        .filter(
+            Member.group_id == org_id,
+            Member.capacity == 'admin'
+        )
+        .all()
+    )
+    return admins

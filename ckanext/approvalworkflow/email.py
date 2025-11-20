@@ -12,12 +12,12 @@ def get_approval_body(user, group_dict=None, pkg_dict=None):
     if group_dict:
         group_type = (_('organization') if group_dict['is_organization']
                       else _('group'))
-
+    user_fullname = user.fullname or user.name
     extra_vars = {
         'aw_link_datasets': get_approval_link(pkg_dict),
         'site_title': config.get('ckan.site_title'),
         'site_url': config.get('ckan.site_url'),
-        'user_name': user.name,
+        'user_fullname': user_fullname,
     }
     if pkg_dict:
         extra_vars['dataset_link'] = config.get('ckan.site_url') + '/dataset/edit/' + pkg_dict['name']
@@ -40,7 +40,6 @@ def send_approval_needed(user, group_dict=None, pkg_dict=None):
         'aw_link_datasets': get_approval_link(pkg_dict),
         'site_title': config.get('ckan.site_title')
     }
-    print(extra_vars['site_title'])
 
     if group_dict:
         group_type = (_('organization') if group_dict['is_organization']
