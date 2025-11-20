@@ -28,6 +28,11 @@ When a user submits a new dataset, it enters a Approval Pending  state. At this 
 
 This approval flow ensures that dataset publishing follows a consistent, auditable process and gives organizations full control over what becomes publicly accessible.
 
+**Note:**  
+Any update made to a dataset by a **non-admin user** will automatically place the dataset back into the **Pending Approval** state.  
+Dataset creations and changes performed by **organization administrators** or **sysadmins** are **not** subject to the approval workflow.
+
+
 
 ## Requirements
 
