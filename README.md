@@ -1,8 +1,10 @@
-[![Tests](https://github.com//ckanext-approvalworkflow/workflows/Tests/badge.svg?branch=main)](https://github.com//ckanext-approvalworkflow/actions)
+[![CI][]][1] [![Python][]][2] [![CKAN][]][3]
 
 # ckanext-approvalworkflow
 
-A CKAN extension for adding an Approval Workflow on Datasets.
+This CKAN extension adds a structured dataset approval workflow to CKAN instances that require moderation before datasets become publicly visible. It enhances governance, quality control, and transparency by introducing a controlled review process and providing administrators with clear oversight of dataset publication activities.
+
+The extension is designed to integrate seamlessly with CKAN’s core functionality while adding essential moderation features such as notifications, approval logging, and a dedicated approval stream.
 
 The extension provides 3 options for the Approval Workflow:
 - Not active
@@ -14,10 +16,15 @@ The extension provides 3 options for the Approval Workflow:
 
 Make sure to have [email settings](https://docs.ckan.org/en/2.9/maintaining/configuration.html#email-settings) in your `ckan.ini` file.
 
-The extension can work with [ckanext-datasetversions](https://github.com/keitaroinc/ckanext-datasetversions)
+Compatibility with core CKAN versions:
 
+| CKAN version    | Compatible?   |
+| --------------- | ------------- |
+| 2.9             | Yes           |
+| 2.10            | Yes           |
+| 2.11            | Yes           |
 
-Compatibility with core CKAN versions: 2.9
+For CKAN 2.9 use the 0.0.1 tag
 
 
 ## Installation
@@ -110,3 +117,11 @@ If ckanext-approvalworkflow should be available on PyPI you can follow these ste
 ## License
 
 [AGPL](https://www.gnu.org/licenses/agpl-3.0.en.html)
+
+
+  [CI]: https://github.com/keitaroinc/ckanext-approvalworkflow/workflows/CI/badge.svg
+  [1]: https://github.com/keitaroinc/ckanext-approvalworkflow/actions
+  [Python]: https://img.shields.io/badge/python-3.9%20|%203.10%20|%203.11-blue
+  [2]: https://www.python.org
+  [CKAN]: https://img.shields.io/badge/ckan-%202.9%20|%202.10%20|%202.11-yellow
+  [3]: https://www.ckan.org

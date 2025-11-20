@@ -1,51 +1,21 @@
 # Approval workflow functions
 from flask import Blueprint
 from flask.views import MethodView
-
 import ckantoolkit as tk
-from ckan.plugins import PluginImplementations, toolkit
-
-# encoding: utf-8
-import cgi
-import json
 import logging
-
-import flask
-from flask.views import MethodView
-
-import six
 import ckan.lib.base as base
-import ckan.lib.datapreview as lib_datapreview
-import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.dictization.model_dictize as model_dictize
-import ckan.lib.uploader as uploader
-from ckan.lib import mailer
 import ckan.logic as logic
 import ckan.model as model
-import ckan.plugins as plugins
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
-
-from ckan.views.dataset import (
-    _get_pkg_template, _get_package_type, _setup_template_variables
-)
-
-import ckan.plugins.toolkit as toolkit
-
 import ckan.lib.navl.dictization_functions
-from ckan.common import config, asbool
 import ckan.authz as authz
-import ckan.lib.search as search
-
 from ckanext.approvalworkflow import actions
 import ckanext.approvalworkflow.db as db
-from ckanext.approvalworkflow.db import ApprovalWorkflowOrganization
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
-Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -57,8 +27,8 @@ flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
 
-
 org_approval_workflow = Blueprint('org_approval_workflow', __name__)
+
 
 def _get_config_options():
     org_activity_workflow_options = [{
@@ -111,25 +81,36 @@ class OrganizationApprovalConfigView(MethodView):
         db_model = db.ApprovalWorkflowOrganization.get(organization_id=group_dict['id'])
         aw_model = db.ApprovalWorkflow.get()
 
-        extra_vars = {u"group_dict": group_dict,
-                    u"group_type": group_type,
-                    u'data_dict': data_dict,
-                    u'data': items}
+        extra_vars = {
+            u"group_dict": group_dict,
+            u"group_type": group_type,
+            u'data_dict': data_dict,
+            u'data': items
+            }
 
         if not aw_model:
-            return tk.render(u'organization/snippets/approval_not_active.html', extra_vars=extra_vars)
-        elif aw_model.active == False:
-            return tk.render(u'organization/snippets/approval_not_active.html', extra_vars=extra_vars)
+            return tk.render(
+                u'organization/snippets/approval_not_active.html',
+                extra_vars=extra_vars
+                )
+        elif aw_model.active is False:
+            return tk.render(
+                u'organization/snippets/approval_not_active.html',
+                extra_vars=extra_vars
+                )
         elif aw_model.approval_workflow_active != '3':
-            return tk.render(u'organization/snippets/approval_not_active.html', extra_vars=extra_vars)
+            return tk.render(
+                u'organization/snippets/approval_not_active.html',
+                extra_vars=extra_vars
+                )
         else:
             if db_model:
                 model_dict = db.table_dictize(db_model, context)
 
                 extra_vars = {u"group_dict": group_dict,
-                            u"group_type": group_type,
-                            u'data_dict': model_dict,
-                            u'data': items}         
+                              u"group_type": group_type,
+                              u'data_dict': model_dict,
+                              u'data': items}
 
         return tk.render(u'organization/snippets/org_approval_form.html', extra_vars=extra_vars)
 
@@ -155,15 +136,13 @@ class OrganizationApprovalConfigView(MethodView):
                         logic.parse_params(req,
                                            ignore_keys=CACHE_PARAMETERS))))
             data_dict['organization'] = group_dict['id']
-            
 
             del data_dict['save']
             data = actions.save_org_workflow_options(self, context, data_dict)
 
-
         except logic.ValidationError as e:
             if db_model:
-                model_dict = db.table_dictize(db_model, context)            
+                model_dict = db.table_dictize(db_model, context)
             data = request.form
             errors = e.error_dict
             error_summary = e.error_summary
@@ -206,8 +185,13 @@ def _get_group_dict(id, group_type):
         })
     except (NotFound, NotAuthorized):
         base.abort(404, _(u'Group not found'))
-  
-org_approval_workflow.add_url_rule(u'/organization/approval_workflow/<id>', view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow')))
+
+
+org_approval_workflow.add_url_rule(
+    u'/organization/approval_workflow/<id>',
+    view_func=OrganizationApprovalConfigView.as_view(str(u'approval_workflow'))
+    )
+
 
 def index(data=None, id=None):
     context = {
@@ -220,9 +204,11 @@ def index(data=None, id=None):
     }
 
     data_dict = {u'user_obj': g.userobj, u'id': id}
-    extra_vars = _extra_template_variables(context, data_dict)
+    extra_vars = _extra_template_variables(context, data_dict) # noqa
 
     if tk.request.method == 'POST' and not data:
-        return 
+        return
 
-    return tk.render(u'organization/snippets/org_approval_form.html', extra_vars=extra_vars)
+    return tk.render(
+        u'organization/snippets/org_approval_form.html',
+        extra_vars=extra_vars)

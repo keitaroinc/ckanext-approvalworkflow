@@ -1,7 +1,7 @@
 {% extends "approval_workflow/index.html" %}
 
 {% block primary_content_inner %}
-  <h2 class="hide-heading">{{ _('My Datasets 111') }}</h2>
+  <h2 class="hide-heading">{{ _('My Datasets') }}</h2>
   <!-- test -->
   {% if user_dict.datasets %}
     {% snippet 'approval_workflow/snippets/package_list.html', packages=user_dict.datasets %}

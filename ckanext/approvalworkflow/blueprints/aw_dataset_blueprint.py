@@ -1,54 +1,17 @@
 # Approval workflow functions
 from flask import Blueprint
 from flask.views import MethodView
-
-import ckantoolkit as tk
-from ckan.plugins import PluginImplementations, toolkit
-
-# encoding: utf-8
-import cgi
-import json
 import logging
-
-import flask
-from flask.views import MethodView
-
-import six
 import ckan.lib.base as base
-import ckan.lib.datapreview as lib_datapreview
 import ckan.lib.helpers as h
-import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.uploader as uploader
-import ckan.lib.plugins as lib_plugins
-from ckan.lib import mailer
+import ckanext.approvalworkflow.helpers as helpers
+import ckan.plugins.toolkit as tk
 import ckan.logic as logic
 import ckan.model as model
-import ckan.plugins as plugins
-from ckan.common import _, g, request
-from ckan.views.home import CACHE_PARAMETERS
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
-import ckan.lib.dictization.model_dictize as model_dictize
+from ckan.common import _, g
+from ckan.views.dataset import _get_package_type
 
-from ckan.views.dataset import (
-    _get_pkg_template, _get_package_type, _setup_template_variables
-)
 
-import ckan.plugins.toolkit as toolkit
-
-import ckan.lib.navl.dictization_functions
-from ckan.common import config, asbool
-import ckan.authz as authz
-import ckan.lib.search as search
-
-import ckan.views.dataset as dataset
-
-from ckanext.approvalworkflow import actions
-import ckanext.approvalworkflow.db as db
-from ckanext.approvalworkflow.db import ApprovalWorkflow
-
-_validate = ckan.lib.navl.dictization_functions.validate
-
-Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -59,7 +22,6 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
-from ckan.views.user import _extra_template_variables
 
 
 dataset_approval_workflow = Blueprint(
@@ -69,168 +31,25 @@ dataset_approval_workflow = Blueprint(
     url_defaults={u'package_type': u'dataset'}
 )
 
-class ApprovalEditView(MethodView):
-    def _prepare(self, id, data=None):
-        context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj,
-            u'save': u'save' in request.form
-        }
-        return context
 
-    def post(self, package_type, id):
-        context = self._prepare(id)
-        package_type = _get_package_type(id) or package_type
-        log.debug(u'Package save request name: %s POST: %r', id, request.form)
-        try:
-            data_dict = clean_dict(
-                dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
-            )
-        except dict_fns.DataError:
-            return base.abort(400, _(u'Integrity Error'))
-        try:
-            if u'_ckan_phase' in data_dict:
-                # we allow partial updates to not destroy existing resources
-                context[u'allow_partial_update'] = True
-                if u'tag_string' in data_dict:
-                    data_dict[u'tags'] = dataset._tag_string_to_list(
-                        data_dict[u'tag_string']
-                    )
-                del data_dict[u'_ckan_phase']
-                del data_dict[u'save']
-            context[u'message'] = data_dict.get(u'log_message', u'')
-            data_dict['id'] = id
-            data_dict['state'] = 'active'
-            pkg_dict = get_action(u'package_update')(context, data_dict)
-
-            return dataset._form_save_redirect(
-                pkg_dict[u'name'], u'edit', package_type=package_type
-            )
-        except NotAuthorized:
-            return base.abort(403, _(u'Unauthorized to read package %s') % id)
-        except NotFound as e:
-            return base.abort(404, _(u'Dataset not found'))
-        except SearchIndexError as e:
-            try:
-                exc_str = text_type(repr(e.args))
-            except Exception:  # We don't like bare excepts
-                exc_str = text_type(str(e))
-            return base.abort(
-                500,
-                _(u'Unable to update search index.') + exc_str
-            )
-        except ValidationError as e:
-            errors = e.error_dict
-            error_summary = e.error_summary
-            return self.get(package_type, id, data_dict, errors, error_summary)
-
-    def get(
-        self, package_type, id, data=None, errors=None, error_summary=None
-    ):
-        context = self._prepare(id, data)
-        package_type = _get_package_type(id) or package_type
-        try:
-            pkg_dict = get_action(u'package_show')(
-                dict(context, for_view=True), {
-                    u'id': id
-                }
-            )
-            context[u'for_edit'] = True
-            old_data = get_action(u'package_show')(context, {u'id': id})
-
-            if data:
-                old_data.update(data)
-            data = old_data
-        except (NotFound, NotAuthorized):
-            return base.abort(404, _(u'Dataset not found'))
-
-        if data.get(u'state', u'').startswith(u'draft'):
-            g.form_action = h.url_for(u'{}.new'.format(package_type))
-            g.form_style = u'new'
-
-            return dataset.CreateView().get(
-                package_type,
-                data=data,
-                errors=errors,
-                error_summary=error_summary
-            )
-
-        pkg = context.get(u"package")
-        resources_json = h.json.dumps(data.get(u'resources', []))
-
-        try:
-            logic.check_access(u'package_update', context)
-        except NotAuthorized:
-            return base.abort(
-                403,
-                _(u'User %r not authorized to edit %s') % (g.user, id)
-            )
-
-        if data and not data.get(u'tag_string'):
-            data[u'tag_string'] = u', '.join(
-                h.dict_list_reduce(pkg_dict.get(u'tags', {}), u'name')
-            )
-        errors = errors or {}
-        form_snippet = _get_pkg_template(
-            u'package_form', package_type=package_type
-        )
-        form_vars = {
-            u'data': data,
-            u'errors': errors,
-            u'error_summary': error_summary,
-            u'action': u'edit',
-            u'dataset_type': package_type,
-            u'form_style': u'edit'
-        }
-        errors_json = h.json.dumps(errors)
-
-        g.pkg = pkg
-        g.resources_json = resources_json
-        g.errors_json = errors_json
-
-        _setup_template_variables(
-            context, {u'id': id}, package_type=package_type
-        )
-
-        form_vars[u'stage'] = [u'active']
-        if data.get(u'state', u'').startswith(u'draft'):
-            form_vars[u'stage'] = [u'active', u'complete']
-
-        edit_template = _get_pkg_template(u'edit_template', package_type)
-        return base.render(
-            edit_template,
-            extra_vars={
-                u'form_vars': form_vars,
-                u'form_snippet': form_snippet,
-                u'dataset_type': package_type,
-                u'pkg_dict': pkg_dict,
-                u'pkg': pkg,
-                u'resources_json': resources_json,
-                u'form_snippet': form_snippet,
-                u'errors_json': errors_json
-            }
-        )
-
-class ApprovalWorkflowRejectView(MethodView):
+class DatasetApproval(MethodView):
     def _prepare(self):
         context = {
             u'model': model,
             u'session': model.Session,
             u'user': g.user,
-            u'auth_user_obj': g.userobj
+            u'auth_user_obj': g.userobj,
+            u'form_style': u'edit'
         }
         return context
 
-    def post(self, package_type, id):
-        if u'cancel' in request.form:
-            return h.redirect_to(u'{}.edit'.format(package_type), id=id)
+    def get(
+        self, package_type, id, data=None, errors=None, error_summary=None
+    ):
         context = self._prepare()
+        package_type = _get_package_type(id) or package_type
         try:
-            pkg = get_action(u'package_show')(context, {u'id': id})
-            pkg['state'] = u'draft'
-            pkg_dict = get_action(u'package_update')(context, pkg)
+            pkg_dict = get_action(u'package_show')(context, {u'id': id})
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except NotAuthorized:
@@ -239,11 +58,77 @@ class ApprovalWorkflowRejectView(MethodView):
                 _(u'Unauthorized to edit package %s') % u''
             )
 
-        h.flash_notice(_(u'Dataset has been rejected. Saved as Draft'))
-        return h.redirect_to( u'dataset.search')
+        dataset_type = pkg_dict[u'type'] or package_type
+        org_admin = helpers.is_user_org_admin(
+            pkg_dict[u'organization'][u'id']) or g.userobj.sysadmin
+        if not org_admin:
+            return base.abort(
+                403,
+                _(u'Unauthorized to approve package %s') % u''
+            )
+
+        return base.render(
+            u'package/snippets/package_approval_form.html',
+            {
+                u'pkg_dict': pkg_dict,
+                u'dataset_type': dataset_type
+            }
+        )
+
+    def post(self, package_type, id):
+
+        context = self._prepare()
+        approval_notes = tk.request.form.get('approval-notes')
+        submitted_action = tk.request.form.get('action')
+        # if u'cancel' in request.form:
+        #     return h.redirect_to(u'{}.edit'.format(package_type), id=id)
+        try:
+            pkg = get_action(u'package_show')(context, {u'id': id})
+            if submitted_action == 'approved':
+                pkg['state'] = u'active'
+                get_action(u'package_update')(context, pkg)
+            elif submitted_action == 'rejected':
+                pkg['state'] = u'draft'
+                get_action(u'package_update')(context, pkg)
+        except NotFound:
+            return base.abort(404, _(u'Dataset not found'))
+        except NotAuthorized:
+            return base.abort(
+                403,
+                _(u'Unauthorized to edit package %s') % u''
+            )
+        data_dict = {
+            'package_id': pkg['id'],
+            'approval-notes': approval_notes,
+            'submitted_action': submitted_action
+        }
+        try:
+            get_action(u'approval_activity_create')(context, data_dict)
+        except NotAuthorized:
+            return base.abort(
+                403,
+                _(u'Unauthorized to approve package %s') % u''
+            )
+
+        h.flash_notice(_(u'Dataset has been {}.'.format(submitted_action)))
+        return h.redirect_to(u'dataset.search')
+
+
+class ApprovalStream(MethodView):
+
+    def _prepare(self):
+        context = {
+            u'model': model,
+            u'session': model.Session,
+            u'user': g.user,
+            u'auth_user_obj': g.userobj,
+        }
+
+        return context
 
     def get(self, package_type, id):
         context = self._prepare()
+        package_type = _get_package_type(id) or package_type
         try:
             pkg_dict = get_action(u'package_show')(context, {u'id': id})
         except NotFound:
@@ -251,24 +136,27 @@ class ApprovalWorkflowRejectView(MethodView):
         except NotAuthorized:
             return base.abort(
                 403,
-                _(u'Unauthorized to delete package %s') % u''
+                _(u'Unauthorized to edit package %s') % u''
             )
-
-        dataset_type = pkg_dict[u'type'] or package_type
-
-        # TODO: remove
-        g.pkg_dict = pkg_dict
-
+        approval_stream = get_action(u'approval_activity_read')(context, pkg_dict['id'])
         return base.render(
-            u'package/confirm_reject.html', {
+            u'package/approval_stream.html',
+            {
                 u'pkg_dict': pkg_dict,
-                u'dataset_type': dataset_type
+                u'approval_stream': approval_stream
             }
         )
 
+    def post(self, package_type, id):
+        pass
+
+
 dataset_approval_workflow.add_url_rule(
-    u'/edit/<id>', view_func=ApprovalEditView.as_view(str(u'edit'))
+    u'/datasetapproval/<id>',
+    view_func=DatasetApproval.as_view(str(u'datasetapproval'))
 )
+
 dataset_approval_workflow.add_url_rule(
-    u'/reject/<id>', view_func=ApprovalWorkflowRejectView.as_view(str(u'reject'))
+    u'/datasetapproval/activity/<id>',
+    view_func=ApprovalStream.as_view(str(u'approvalstream'))
 )
