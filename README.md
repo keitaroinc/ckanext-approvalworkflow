@@ -2,24 +2,47 @@
 
 # ckanext-approvalworkflow
 
-A CKAN extension for adding an Approval Workflow on Datasets.
+This CKAN extension adds a structured dataset approval workflow to CKAN instances that require moderation before datasets become publicly visible. It enhances governance, quality control, and transparency by introducing a controlled review process and providing administrators with clear oversight of dataset publication activities.
 
-The extension provides 3 options for the Approval Workflow:
-- Not active
-- Active
-- Activate appruval workflow per organization
+The extension is designed to integrate seamlessly with CKAN’s core functionality while adding essential moderation features such as notifications, approval logging, and a dedicated approval stream.
+
+This extension provides three configuration modes for managing the dataset approval workflow:
+- Not Active – The approval workflow is disabled and datasets are published immediately.
+- Active – The approval workflow is enabled globally for all organizations.
+- Activate Approval Workflow per Organization – The workflow can be selectively enabled or disabled at the organization level.
+
+## Dataset Approval Flow
+
+When a user submits a new dataset, it enters a Approval Pending  state. At this point:
+
+1. **Notification** is sent—All administrators of the relevant CKAN organization receive an email containing a direct link to the dataset awaiting review.
+
+2. **Review actions**—Organization administrators or system administrators can either approve or reject the dataset.
+
+3. **Publication control**—Approved datasets move to a published state, while rejected datasets are saved as draft.
+
+4. **Approval Stream logging** — Every action is recorded in an Approval Stream, similar to CKAN’s Activity Stream. This log provides:
+   - The user who performed the approval or rejection  
+   - Timestamps for all workflow events  
+   - Optional notes explaining the decision 
+
+This approval flow ensures that dataset publishing follows a consistent, auditable process and gives organizations full control over what becomes publicly accessible.
 
 
 ## Requirements
 
 Make sure to have [email settings](https://docs.ckan.org/en/2.9/maintaining/configuration.html#email-settings) in your `ckan.ini` file.
 
-The extension can work with [ckanext-datasetversions](https://github.com/keitaroinc/ckanext-datasetversions)
+Compatibility with core CKAN versions:
 
+| CKAN version    | Compatible?   |
+| --------------- | ------------- |
+| 2.9             | Yes           |
+| 2.10            | Yes           |
+| 2.11            | Yes           |
 
-Compatibility with core CKAN versions: 2.10, 2.11
+For CKAN 2.9 use the 0.0.1 tag
 
-For CKAN 2.9 use tag 0.0.1
 
 ## Installation
 To install ckanext-approvalworkflow:
