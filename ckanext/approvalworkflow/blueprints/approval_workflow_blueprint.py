@@ -450,7 +450,8 @@ def approval_user_show(context, data_dict):
         if include_private_and_draft_datasets:
             search_dict.update({
                 'include_private': True,
-                'include_drafts': True})
+                # 'include_drafts': True
+                })
 
         if include_review:
             if include_private_and_draft_datasets:
