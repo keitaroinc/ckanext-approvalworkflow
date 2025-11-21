@@ -1,6 +1,6 @@
 import ckanext.approvalworkflow.db as db
 from ckan.plugins import toolkit
-from ckan.model import Member, User, Group, Session
+from ckan.model import Member, User, Session
 
 g = toolkit.g
 
