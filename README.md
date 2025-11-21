@@ -7,30 +7,70 @@ This CKAN extension adds a structured dataset approval workflow to CKAN instance
 The extension is designed to integrate seamlessly with CKAN’s core functionality while adding essential moderation features such as notifications, approval logging, and a dedicated approval stream.
 
 This extension provides three configuration modes for managing the dataset approval workflow:
-- Not Active – The approval workflow is disabled and datasets are published immediately.
-- Active – The approval workflow is enabled globally for all organizations.
-- Activate Approval Workflow per Organization – The workflow can be selectively enabled or disabled at the organization level.
+
+- **Not Active** – The approval workflow is disabled and datasets are published immediately.
+- **Active** – The approval workflow is enabled globally for all organizations.
+- **Activate Approval Workflow per Organization** – The workflow can be selectively enabled or disabled at the organization level.
+
+---
 
 ## Dataset Approval Flow
 
-When a user submits a new dataset, it enters a Approval Pending  state. At this point:
+When a user submits a new dataset, it enters an **Approval Pending** state. At this point:
 
-1. **Notification** is sent—All administrators of the relevant CKAN organization receive an email containing a direct link to the dataset awaiting review.
+### 1. Sent to Review Form  
+When submitting a dataset, users see a **Review** button on the same page used for adding resources. Selecting this option places the dataset into the approval queue.
 
-2. **Review actions**—Organization administrators or system administrators can either approve or reject the dataset.
+<img width="1237" height="848" alt="Sent to review form" src="https://github.com/user-attachments/assets/59620474-5994-430a-9791-5a6edaab3d73" />
 
-3. **Publication control**—Approved datasets move to a published state, while rejected datasets are saved as draft.
+---
 
-4. **Approval Stream logging** — Every action is recorded in an Approval Stream, similar to CKAN’s Activity Stream. This log provides:
-   - The user who performed the approval or rejection  
-   - Timestamps for all workflow events  
-   - Optional notes explaining the decision 
+### 2. Pending Datasets List  
+Organization administrators can view all datasets currently awaiting approval.
+
+<img width="1237" height="521" alt="Pending datasets list" src="https://github.com/user-attachments/assets/0d68db39-d541-46f1-a6cb-30889a8db393" />
+
+---
+
+### 3. Approval Form  
+Admins and sysadmins can approve or reject the dataset and optionally include notes.
+
+<img width="1237" height="539" alt="Approval form" src="https://github.com/user-attachments/assets/2943aa5b-a4b1-4366-a57a-715d3270b75a" />
+
+---
+
+### 4. Approval Stream Logging  
+Every approval or rejection event is tracked in the Approval Stream, similar to CKAN’s Activity Stream.
+
+<img width="1237" height="578" alt="Approval activity stream" src="https://github.com/user-attachments/assets/c53acda1-a8d3-40c7-b828-75b07cb57c1d" />
+
+---
+
+### Workflow Summary
+
+1. **Notification** is sent — All administrators of the relevant CKAN organization receive an email containing a direct link to the dataset awaiting review.
+
+2. **Review actions** — Organization administrators or system administrators can either approve or reject the dataset.
+
+3. **Publication control** —  
+   - Approved datasets move to a published state.  
+   - Rejected datasets are saved as drafts.
+
+4. **Approval Stream logging** — Every action is recorded with:  
+   - The user who performed the action  
+   - Timestamps for each workflow event  
+   - Optional review notes  
 
 This approval flow ensures that dataset publishing follows a consistent, auditable process and gives organizations full control over what becomes publicly accessible.
 
+---
+
+## Important Notes
+
 **Note:**  
 Any update made to a dataset by a **non-admin user** will automatically place the dataset back into the **Pending Approval** state.  
- Dataset creations and changes  performed by **organization administrators** or **sysadmins** are **not** subject to the approval workflow.
+Dataset creations and updates performed by **organization administrators** or **sysadmins** are **not** subject to the approval workflow.
+
 
 
 ## Requirements
