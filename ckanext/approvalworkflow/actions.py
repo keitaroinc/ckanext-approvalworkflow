@@ -132,7 +132,9 @@ def approval_activity_create(context, data_dict):
         activity_workflow_dataset.id = make_uuid()
         activity_workflow_dataset.package_id = data_dict['package_id']
         activity_workflow_dataset.user_id = user_id
-        activity_workflow_dataset.timestamp = str(datetime.datetime.now())
+        activity_workflow_dataset.timestamp = (
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
         activity_workflow_dataset.status = data_dict['submitted_action']
         activity_workflow_dataset.approval_notes = data_dict['approval-notes']
         session.add(activity_workflow_dataset)

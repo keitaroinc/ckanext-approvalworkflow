@@ -50,13 +50,12 @@ class CreateView(resource.CreateView):
                 dict(context, allow_state_change=True),
                 dict(data_dict, state=u'pending')
             )
-            
+
             approval_data = {
                 'package_id': data_dict['id'],
                 'approval-notes': 'Dataset sent for approval',
                 'submitted_action': 'pending',
             }
-            
             get_action(u'approval_activity_create')(context, approval_data)
 
             import ckanext.approvalworkflow.email as email
