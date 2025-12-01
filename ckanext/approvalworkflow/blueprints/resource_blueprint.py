@@ -8,6 +8,7 @@ import ckan.logic as logic
 import ckan.lib.navl.dictization_functions as dict_fns
 import ckan.model as model
 import ckan.views.resource as resource
+import ckan.plugins.toolkit as tk
 
 clean_dict = logic.clean_dict
 tuplize_dict = logic.tuplize_dict
@@ -20,7 +21,7 @@ ValidationError = logic.ValidationError
 approval_resource_blueprint = Blueprint(
     u'approval_dataset_resource',
     __name__,
-    url_prefix=u'/dataset/<id>/resource',
+    # url_prefix=u'/dataset/<id>/resource',
     url_defaults={u'package_type': u'dataset'}
 )
 
@@ -82,7 +83,20 @@ def get_sysadmins():
 
 
 def register_dataset_plugin_rules(blueprint):
-    blueprint.add_url_rule(u'/new', view_func=CreateView.as_view(str(u'new')))
+    blueprint.add_url_rule(
+        u'/dataset/<id>/resource/new',
+        view_func=CreateView.as_view(str(u'new'))
+        )
+
+    dataset_types = tk.config.get('ckanext.approvalworkflow.dataset_types', '')
+    dataset_types = [dt.strip() for dt in dataset_types.split(',') if dt.strip()]
+
+    if dataset_types:
+        for dt in dataset_types:
+            blueprint.add_url_rule(
+                f'/{dt}/<id>/resource/new',
+                view_func=CreateView.as_view(f'{dt}_resource_new')
+            )
 
 
 register_dataset_plugin_rules(approval_resource_blueprint)

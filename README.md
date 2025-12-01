@@ -122,7 +122,9 @@ To install ckanext-approvalworkflow:
 
 ## Config settings
 
-None at present
+If your CKAN instance uses additional dataset types defined through **ckanext-scheming**, beyond the default `dataset` type, ensure that these custom types are explicitly listed in the configuration. For example:
+
+``ckanext.approvalworkflow.dataset_types = report, camel-photos, whitepaper``
 
 
 ## Developer installation
