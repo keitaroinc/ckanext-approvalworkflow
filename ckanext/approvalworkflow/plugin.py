@@ -1,5 +1,6 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckan.common import g
 
 from ckanext.approvalworkflow.cli import get_commands
 from ckanext.approvalworkflow import actions
@@ -20,6 +21,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
+    plugins.implements(plugins.IPackageController, inherit=True)
 
     # IClick
 
@@ -123,6 +125,21 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
             'get_approval_org_info': helpers.get_approval_org_info,
             'is_user_org_admin': helpers.is_user_org_admin,
         }
+    
+    # IPackageController
+    def create(self, entity):
+        
+        if entity.owner_org is None:
+            org_admin = g.userobj.sysadmin
+        else:
+            org_admin = helpers.is_user_org_admin(
+                entity.owner_org) or g.userobj.sysadmin
+        if org_admin:
+            pass
+        else:
+            entity.state = 'pending'
+    
+        return entity
 
 
 def validate_state(key, data, errors, context):
