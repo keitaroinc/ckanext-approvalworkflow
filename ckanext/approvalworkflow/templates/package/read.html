@@ -1,0 +1,50 @@
+{% ckan_extends %}
+
+{% block content_action %}
+{% if not is_activity_archive %}
+{% if h.check_access('package_update', {'id':pkg.id }) %}
+
+    {% set aw_active = h.get_approvalworkflow_info({}) %}
+
+    <!-- if state of package is pending / AW deactivated -> can't create a new version & dataset can't be edited-->
+    {% if pkg.state == 'pending' and not aw_active.active %}
+          <h4>Dataset is waiting for approval!</h4>
+    <!-- If AW active for all datasets -->
+    {% elif aw_active.active and aw_active.approval_workflow_active == '2' %}     
+      {% if 'datasetversions' in g.plugins %}
+          {{ h.snippet('package/snippets/datasetversions.html', pkg=pkg) }}
+      {% endif %}
+      {% if aw_active.deactivate_edit and not c.userobj.sysadmin %}
+          {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-default disabled', icon='wrench' %}
+      {% else %}
+          {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
+      {% endif %}
+    <!-- active per Organizatoin -->
+    {% elif aw_active.active and aw_active.approval_workflow_active == '3' %}
+        {% set org_aw = h.get_approvalworkflow_org_info({}, pkg.id) %}
+
+        {% if 'datasetversions' in g.plugins %}
+          {{ h.snippet('package/snippets/datasetversions.html', pkg=pkg) }}
+        {% endif %}
+        
+        <!-- if aw is active for Org -->
+        {% if org_aw.active %}
+          <!-- if edit is diabled -->
+          {% if org_aw.deactivate_edit %}
+              {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-default disabled', icon='wrench' %}
+          {% else %}
+              {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
+          {% endif %}
+        {% else %}
+          {% link_for _('Manage'), named_route=pkg.type ~ '.edit', id=pkg.name, class_='btn btn-default', icon='wrench' %}
+        {% endif %}
+
+    {% else %}
+      {{ super() }}
+    {% endif %}
+  {% endif %}
+{% endif %}
+
+{% endblock %}
+
+{{ super() }}

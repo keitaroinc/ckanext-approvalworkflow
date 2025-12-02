@@ -29,4 +29,3 @@ def initdb():
 def dropdb():
     utils.dropdb()
     click.secho(u"Approval Workflow DB tables deleted", fg=u"green")
-

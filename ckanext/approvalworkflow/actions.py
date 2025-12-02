@@ -1,26 +1,31 @@
-import datetime
-import ast
-
+from ckan.common import g
 import ckan.plugins.toolkit as toolkit
-
+import ckan.plugins as p
 import ckanext.approvalworkflow.db as db
-
+import ckan.logic as logic
+import datetime
+import logging
+from ckan.model.types import make_uuid
+from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
+from ckanext.approvalworkflow import helpers
 
 ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
+NotFound = logic.NotFound
+log = logging.getLogger(__name__)
 
 
 def workflow(self, context):
-    session = context.get('session')
-    approval_workflow = ApprovalWorkflow()
+    # session = context.get('session')
+    # approval_workflow = ApprovalWorkflow()
 
     return
 
 
 def save_workflow_options(self, context, data_dict):
-    session = context.get('session')
+    # session = context.get('session')
     userobj = context.get("auth_user_obj", None)
-    model = context.get("model")
+    # model = context.get("model")
 
     if not userobj:
         raise NotFound(toolkit._('User not found'))
@@ -29,14 +34,14 @@ def save_workflow_options(self, context, data_dict):
 
     if not db_model:
         db_model = db.ApprovalWorkflow()
-    
+
     aw_active = data_dict.get("approval_workflow_active")
 
     if aw_active != '1':
         db_model.active = True
         db_model.approval_workflow_active = aw_active
         db_model.deactivate_edit = bool(data_dict.get("ckan.edit-button"))
-        
+
         if aw_active == '3':
             db_model.active_per_organization = True
         else:
@@ -62,7 +67,7 @@ def save_workflow_options(self, context, data_dict):
 
 
 def save_org_workflow_options(self, context, data_dict):
-    session = context.get('session')
+    # session = context.get('session')
     userobj = context.get("auth_user_obj", None)
     organization = data_dict['organization']
 
@@ -72,7 +77,7 @@ def save_org_workflow_options(self, context, data_dict):
     approval_workflow = db.ApprovalWorkflow().get()
 
     if approval_workflow:
-        aw_dict = db.table_dictize(approval_workflow, context)
+        # aw_dict = db.table_dictize(approval_workflow, context)
 
         db_model = db.ApprovalWorkflowOrganization.get(organization_id=organization)
 
@@ -80,7 +85,7 @@ def save_org_workflow_options(self, context, data_dict):
             db_model = db.ApprovalWorkflowOrganization()
 
         aw_active = data_dict.get("approval_workflow_active")
-        
+
         if aw_active == '2':
             db_model.active = True
             db_model.approval_workflow_id = approval_workflow
@@ -92,7 +97,65 @@ def save_org_workflow_options(self, context, data_dict):
             db_model.approval_workflow_id = approval_workflow
             db_model.org_approval_workflow_active = aw_active
             db_model.organization_id = organization
-            db_model.deactivate_edit = False     
+            db_model.deactivate_edit = False
 
         db_model.save()
-    return    
+    return
+
+
+@p.toolkit.chained_action
+def package_update(up_func, context, data_dict):
+
+    if data_dict[u'owner_org'] is None:
+        org_admin = g.userobj.sysadmin
+    else:
+        org_admin = helpers.is_user_org_admin(
+            data_dict[u'owner_org']) or g.userobj.sysadmin
+
+    if org_admin:
+        pass
+    else:
+        data_dict['state'] = 'pending'
+    dataset_dict = up_func(context, data_dict)
+    return dataset_dict
+
+
+def approval_activity_create(context, data_dict):
+    session = context.get('session')
+    if g.userobj:
+        user_id = g.userobj.id
+    else:
+        user_id = 'not logged in'
+
+    try:
+        activity_workflow_dataset = ApprovalWorkflowDataset()
+        activity_workflow_dataset.id = make_uuid()
+        activity_workflow_dataset.package_id = data_dict['package_id']
+        activity_workflow_dataset.user_id = user_id
+        activity_workflow_dataset.timestamp = (
+            datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            )
+        activity_workflow_dataset.status = data_dict['submitted_action']
+        activity_workflow_dataset.approval_notes = data_dict['approval-notes']
+        session.add(activity_workflow_dataset)
+        session.commit()
+
+    except Exception as e:
+        log.error(f"Error saving approval workflow dataset: {e}")
+        session.rollback()
+
+    return
+
+
+def approval_activity_read(context, package_id):
+
+    session = context.get("session")
+
+    approval_stream = (
+        session.query(ApprovalWorkflowDataset)
+        .filter_by(package_id=package_id)
+        .order_by(ApprovalWorkflowDataset.timestamp.desc())
+        .all()
+    )
+
+    return approval_stream

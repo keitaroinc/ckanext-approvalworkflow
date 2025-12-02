@@ -3,51 +3,34 @@ from flask import Blueprint
 from flask.views import MethodView
 
 import ckantoolkit as tk
-from ckan.plugins import PluginImplementations, toolkit
 
 # encoding: utf-8
-import cgi
 import json
 import logging
 
-import flask
-from flask.views import MethodView
 
-import six
 import ckan.lib.base as base
-import ckan.lib.datapreview as lib_datapreview
 import ckan.lib.helpers as h
 import ckan.lib.navl.dictization_functions as dict_fns
-import ckan.lib.uploader as uploader
 import ckan.lib.plugins as lib_plugins
-from ckan.lib import mailer
 import ckan.logic as logic
 import ckan.model as model
 import ckan.plugins as plugins
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
-from ckan.lib.search import SearchError, SearchQueryError, SearchIndexError
 import ckan.lib.dictization.model_dictize as model_dictize
-
-from ckan.views.dataset import (
-    _get_pkg_template, _get_package_type, _setup_template_variables
-)
-
-import ckan.plugins.toolkit as toolkit
-
 import ckan.lib.navl.dictization_functions
 from ckan.common import config, asbool
 import ckan.authz as authz
 import ckan.lib.search as search
 
 from ckanext.approvalworkflow import actions
-import ckanext.approvalworkflow.helpers as aw_helpers
 import ckanext.approvalworkflow.db as db
 from ckanext.approvalworkflow.db import ApprovalWorkflow
+from ckan.views.user import _extra_template_variables
 
 _validate = ckan.lib.navl.dictization_functions.validate
 
-Blueprint = flask.Blueprint
 NotFound = logic.NotFound
 NotAuthorized = logic.NotAuthorized
 ValidationError = logic.ValidationError
@@ -58,7 +41,6 @@ parse_params = logic.parse_params
 flatten_to_string_key = logic.flatten_to_string_key
 
 log = logging.getLogger(__name__)
-from ckan.views.user import _extra_template_variables
 
 approval_workflow = Blueprint('approval_workflow', __name__)
 
@@ -123,7 +105,6 @@ class ApprovalConfigView(MethodView):
                     logic.tuplize_dict(
                         logic.parse_params(req,
                                            ignore_keys=CACHE_PARAMETERS))))
-            
 
             del data_dict['save']
             data = actions.save_workflow_options(self, context, data_dict)
@@ -142,6 +123,7 @@ class ApprovalConfigView(MethodView):
 
         return h.redirect_to(u'approval_workflow.config')
 
+
 approval_workflow.add_url_rule(u'/workflow', view_func=ApprovalConfigView.as_view(str(u'config')))
 
 
@@ -153,7 +135,7 @@ def index(data=None):
         u'auth_user_obj': g.userobj,
         u'for_view': True
     }
-    
+
     data = _get_config_options()
 
     data_dict = {u'user_obj': g.userobj, u'offset': 0}
@@ -161,7 +143,7 @@ def index(data=None):
     extra_vars['data'] = data
 
     if tk.request.method == 'POST' and not data:
-        print (POST)
+        log.info('No data received in POST request')
 
     return tk.render('approval_workflow/index.html', extra_vars=extra_vars)
 
@@ -174,7 +156,7 @@ def datasets():
         u'auth_user_obj': g.userobj,
         u'for_view': True
     }
-    
+
     data = _get_config_options()
     data_dict_user = {u'user_obj': g.userobj, u'include_datasets': True, u'include_private': True, u'include_review': True}
 
@@ -183,14 +165,14 @@ def datasets():
     if approval_workflow:
         approval_workflow = db.table_dictize(approval_workflow, context)
 
-        if approval_workflow['active'] == True:
+        if approval_workflow['active'] is True:
             extra_vars = approval_extra_template_variables(context, data_dict_user)
 
             data_dict = extra_vars['user_dict']
 
             vars = dict(context=context,
-                        user_dict = extra_vars['user_dict'],
-                        is_sysadmin = extra_vars['is_sysadmin'],
+                        user_dict=extra_vars['user_dict'],
+                        is_sysadmin=extra_vars['is_sysadmin'],
                         data=data,
                         data_dict=data_dict)
 
@@ -207,7 +189,7 @@ def datasets():
         return tk.render(u'approval_workflow/snippets/not_active.html', extra_vars=extra_vars)
 
 
-def package_review_search(context, data_dict):
+def package_review_search(context, data_dict): # noqa
     # sometimes context['schema'] is None
     schema = (context.get('schema') or
               logic.schema.default_package_search_schema())
@@ -236,7 +218,7 @@ def package_review_search(context, data_dict):
 
     # check if some extension needs to modify the search params
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        data_dict = item.before_search(data_dict)
+        data_dict = item.before_dataset_search(data_dict)
 
     # the extension may have decided that it is not necessary to perform
     # the query
@@ -260,14 +242,14 @@ def package_review_search(context, data_dict):
             data_dict['fl'] = ' '.join(result_fl)
 
         include_private = asbool(data_dict.pop('include_private', False))
-        include_drafts = asbool(data_dict.pop('include_drafts', False))
+        # include_drafts = asbool(data_dict.pop('include_drafts', False))
         include_review = asbool(data_dict.pop('include_review', False))
 
         data_dict.setdefault('fq', '')
         if not include_private:
             data_dict['fq'] = '+capacity:public ' + data_dict['fq']
         if include_review:
-            data_dict['fq'] += '+state:(pending)'
+            data_dict['fq'] += ' +state:(pending)'
 
         # Pop these ones as Solr does not need them
         extras = data_dict.pop('extras', None)
@@ -282,14 +264,14 @@ def package_review_search(context, data_dict):
         query = search.query_for(model.Package)
         query.run(data_dict, permission_labels=labels)
 
-        print (query.results)
-        
+        print(query.results)
+
         # Add them back so extensions can use them on after_search
         data_dict['extras'] = extras
 
         if result_fl:
             for package in query.results:
-                if isinstance(package, text_type):
+                if isinstance(package, str):
                     package = {result_fl[0]: package}
                 extras = package.pop('extras', {})
                 package.update(extras)
@@ -298,14 +280,14 @@ def package_review_search(context, data_dict):
             for package in query.results:
                 # get the package object
                 package_dict = package.get(data_source)
-                ## use data in search index if there
+                # use data in search index if there
                 if package_dict:
                     # the package_dict still needs translating when being viewed
                     package_dict = json.loads(package_dict)
                     if context.get('for_view'):
                         for item in plugins.PluginImplementations(
                                 plugins.IPackageController):
-                            package_dict = item.before_view(package_dict)
+                            package_dict = item.before_dataset_view(package_dict)
                     results.append(package_dict)
                 else:
                     log.error('No package_dict is coming from solr for package '
@@ -317,7 +299,6 @@ def package_review_search(context, data_dict):
         count = 0
         facets = {}
         results = []
-    
 
     search_results = {
         'count': count,
@@ -326,7 +307,7 @@ def package_review_search(context, data_dict):
         'sort': data_dict['sort']
     }
 
-    print (search_results)
+    print(search_results)
 
     # create a lookup table of group name to title for all the groups and
     # organizations in the current search's facets.
@@ -335,8 +316,8 @@ def package_review_search(context, data_dict):
         group_names.extend(facets.get(field_name, {}).keys())
 
     groups = (session.query(model.Group.name, model.Group.title)
-                    .filter(model.Group.name.in_(group_names))
-                    .all()
+                     .filter(model.Group.name.in_(group_names))
+                     .all()
               if group_names else [])
     group_titles_by_name = dict(groups)
 
@@ -368,7 +349,7 @@ def package_review_search(context, data_dict):
 
     # check if some extension needs to modify the search results
     for item in plugins.PluginImplementations(plugins.IPackageController):
-        search_results = item.after_search(search_results, data_dict)
+        search_results = item.after_dataset_search(search_results, data_dict)
 
     # After extensions have had a chance to modify the facets, sort them by
     # display name.
@@ -461,7 +442,7 @@ def approval_user_show(context, data_dict):
         include_review = sysadmin and asbool(
             data_dict.get('include_review', False))
 
-        #fq = "+creator_user_id:{0}".format(user_dict['id'])
+        # fq = "+creator_user_id:{0}".format(user_dict['id'])
         fq = ""
 
         search_dict = {'rows': 50}
@@ -469,23 +450,24 @@ def approval_user_show(context, data_dict):
         if include_private_and_draft_datasets:
             search_dict.update({
                 'include_private': True,
-                'include_drafts': True})
-        
+                # 'include_drafts': True
+                })
+
         if include_review:
             if include_private_and_draft_datasets:
                 search_dict.update({
                     'include_private': True,
-                    'include_review': True})                
+                    'include_review': True})
             else:
                 search_dict.update({
                     'include_private': True,
                     'include_review': True})
 
         search_dict.update({'fq': fq})
-        print (search_dict)
+        print(search_dict)
         user_dict['datasets'] = package_review_search(context, search_dict)['results']
-        print (user_dict['datasets'])
-    
+        print(user_dict['datasets'])
+
     return user_dict
 
 
