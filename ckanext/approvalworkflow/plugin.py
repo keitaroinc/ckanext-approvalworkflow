@@ -125,10 +125,10 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
             'get_approval_org_info': helpers.get_approval_org_info,
             'is_user_org_admin': helpers.is_user_org_admin,
         }
-    
+
     # IPackageController
     def create(self, entity):
-        
+
         if entity.owner_org is None:
             org_admin = g.userobj.sysadmin
         else:
@@ -138,7 +138,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
             pass
         else:
             entity.state = 'pending'
-    
+
         return entity
 
 
