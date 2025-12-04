@@ -73,3 +73,24 @@ def get_org_admins_raw(org_id):
         .all()
     )
     return admins
+
+
+def get_org_approval_info(org_id):
+    """Return True if organization with org_id has approval workflow enabled"""
+    approval_info_global = (
+        Session.query(db.ApprovalWorkflow).first()
+    )
+    if approval_info_global == 1:  # approval workflow disabled globally
+        return False
+    elif approval_info_global == 2:  # approval workflow enabled globally
+        return True
+    else:  # approval workflow is determined per organization
+        approval_info_org = (
+            Session.query(db.ApprovalWorkflowOrganization)
+            .filter(db.ApprovalWorkflowOrganization.organization_id == org_id)
+            .first()
+        )
+        if approval_info_org.active:
+            return True
+        else:
+            return False

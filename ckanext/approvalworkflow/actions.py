@@ -109,8 +109,11 @@ def package_update(up_func, context, data_dict):
     if data_dict[u'owner_org'] is None:
         org_admin = g.userobj.sysadmin
     else:
-        org_admin = helpers.is_user_org_admin(
-            data_dict[u'owner_org']) or g.userobj.sysadmin
+        if helpers.get_org_approval_info(data_dict[u'owner_org']):
+            org_admin = helpers.is_user_org_admin(
+                data_dict[u'owner_org']) or g.userobj.sysadmin
+        else:
+            org_admin = True  # No approval workflow for this org
 
     if org_admin:
         pass
