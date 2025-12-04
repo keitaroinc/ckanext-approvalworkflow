@@ -6,6 +6,7 @@ from ckanext.approvalworkflow.cli import get_commands
 from ckanext.approvalworkflow import actions
 from ckanext.approvalworkflow import auth
 from ckanext.approvalworkflow import helpers
+from ckanext.approvalworkflow import validators
 
 # new blueprint
 from ckanext.approvalworkflow.blueprints.approval_workflow_blueprint import approval_workflow as approval_workflow_blueprint
@@ -22,6 +23,8 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IValidators)
+    plugins.implements(plugins.IDatasetForm, inherit=True)
 
     # IClick
 
@@ -31,37 +34,14 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def is_fallback(self):
         return True
 
-    def _modify_package_schema(self, schema):
-        # Add our custom_resource_text metadata field to the schema
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
-        return schema
-
     def create_package_schema(self):
-        schema = super(ApprovalworkflowPlugin, self).show_package_schema()
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
+        schema = super().create_package_schema()
+        schema['__after'].append(validators.validate_org_admin_state)
         return schema
 
     def update_package_schema(self):
-        schema = super(ApprovalworkflowPlugin, self).show_package_schema()
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
+        schema = super().update_package_schema()
+        schema['__after'].append(validators.validate_org_admin_state)
         return schema
 
     def package_types(self):
@@ -72,15 +52,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def package_form(self):
         return super(ApprovalworkflowPlugin, self).package_form()
 
-    def show_package_schema(self):
-        schema = super(ApprovalworkflowPlugin, self).show_package_schema()
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
-        return schema
 
     def setup_template_variables(
             self, context, data_dict):
@@ -116,6 +87,15 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
         return {
             "workflow": auth.workflow,
         }
+
+    #  IValidators
+
+    def get_validators(self):
+        return {
+            'validate_org_admin_state': validators.validate_org_admin_state,
+        }
+
+    # ITemplateHelpers
 
     def get_helpers(self):
         return {

@@ -103,21 +103,28 @@ def save_org_workflow_options(self, context, data_dict):
     return
 
 
-@p.toolkit.chained_action
+@toolkit.chained_action
 def package_update(up_func, context, data_dict):
 
-    if data_dict[u'owner_org'] is None:
-        org_admin = g.userobj.sysadmin
-    else:
-        org_admin = helpers.is_user_org_admin(
-            data_dict[u'owner_org']) or g.userobj.sysadmin
+    # Make CKAN load the plugin’s schema!
+    if 'schema' not in context:
+        context['schema'] = toolkit.get_validator('package_update_schema')()
 
-    if org_admin:
-        pass
-    else:
-        data_dict['state'] = 'pending'
-    dataset_dict = up_func(context, data_dict)
-    return dataset_dict
+    owner_org = data_dict.get('owner_org')
+    is_org_admin = False
+
+    if g.userobj:
+        if g.userobj.sysadmin:
+            is_org_admin = True
+        elif owner_org:
+            is_org_admin = helpers.is_user_org_admin(owner_org)
+
+    # If not admin AND the dataset is public → validation error
+    if not is_org_admin and data_dict.get('private') is False:
+        raise toolkit.Invalid('Only organization admins can publish datasets.')
+
+    # Continue with normal CKAN update
+    return up_func(context, data_dict)
 
 
 def approval_activity_create(context, data_dict):
