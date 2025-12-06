@@ -139,9 +139,9 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
             if org_admin:
                 pass
             else:
-                entity.state = 'pending'
-
-            return entity
+                if entity.state == 'active':
+                    entity.state = 'pending'
+                return entity
 
         else:
             return entity

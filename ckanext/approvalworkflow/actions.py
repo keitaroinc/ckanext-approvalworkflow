@@ -3,8 +3,10 @@ import ckan.plugins.toolkit as toolkit
 import ckan.plugins as p
 import ckanext.approvalworkflow.db as db
 import ckan.logic as logic
+import ckan.lib.helpers as h
 import datetime
 import logging
+from ckan.common import _
 from ckan.model.types import make_uuid
 from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
 from ckanext.approvalworkflow import helpers
@@ -13,6 +15,7 @@ ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
 NotFound = logic.NotFound
 log = logging.getLogger(__name__)
+get_action = logic.get_action
 
 
 def workflow(self, context):
@@ -119,6 +122,12 @@ def package_update(up_func, context, data_dict):
         pass
     else:
         data_dict['state'] = 'pending'
+        data_dict['submitted_action'] = 'pending'
+        data_dict['package_id'] = data_dict['pkg_name']
+        data_dict['approval-notes'] = 'Dataset sent for reapproval'
+        breakpoint()
+        get_action(u'approval_activity_create')(context, data_dict)
+        h.flash_notice(_(u'Dataset has been resent for approval.'))
     dataset_dict = up_func(context, data_dict)
     return dataset_dict
 
