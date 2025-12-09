@@ -121,13 +121,23 @@ def package_update(up_func, context, data_dict):
     if org_admin:
         pass
     else:
-        data_dict['state'] = 'pending'
-        data_dict['submitted_action'] = 'pending'
-        data_dict['package_id'] = data_dict['pkg_name']
-        data_dict['approval-notes'] = 'Dataset sent for reapproval'
-        breakpoint()
-        get_action(u'approval_activity_create')(context, data_dict)
-        h.flash_notice(_(u'Dataset has been resent for approval.'))
+        pkg_dict = get_action(u'package_show')(context, {u'id': data_dict[u'id']})
+        if pkg_dict['state'] == 'active':
+            data_dict['state'] = 'pending'
+            data_dict['submitted_action'] = 'pending'
+            data_dict['package_id'] = data_dict['pkg_name']
+            data_dict['approval-notes'] = 'Dataset sent for reapproval'
+            get_action(u'approval_activity_create')(context, data_dict)
+
+            org = get_action(u'organization_show')(context, {u'id': data_dict['owner_org']})
+            admins = helpers.get_org_admins_raw(data_dict['owner_org'])
+            if (org and admins):
+                import ckanext.approvalworkflow.email as email
+                for user in admins:
+                    if user.email:
+                        email.send_approval_needed(user, org, pkg_dict)
+
+            h.flash_notice(_(u'Dataset has been resent for approval.'))
     dataset_dict = up_func(context, data_dict)
     return dataset_dict
 
