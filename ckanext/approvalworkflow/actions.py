@@ -106,7 +106,7 @@ def save_org_workflow_options(self, context, data_dict):
     return
 
 
-@toolkit.chained_action
+@p.toolkit.chained_action
 def package_update(up_func, context, data_dict):
 
     owner_org = data_dict.get('owner_org')
@@ -153,7 +153,6 @@ def package_update(up_func, context, data_dict):
             h.flash_notice(_('Dataset has been resent for approval.'))
 
     return updated
-
 
 
 def approval_activity_create(context, data_dict):
