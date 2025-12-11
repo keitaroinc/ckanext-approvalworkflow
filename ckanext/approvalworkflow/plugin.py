@@ -104,7 +104,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def get_actions(self):
         return {
             "workflow": actions.workflow,
-            'package_update': actions.package_update,
             'save_workflow_options': actions.save_workflow_options,
             'approval_activity_create': actions.approval_activity_create,
             'approval_activity_read': actions.approval_activity_read,

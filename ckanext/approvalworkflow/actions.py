@@ -106,55 +106,6 @@ def save_org_workflow_options(self, context, data_dict):
     return
 
 
-@p.toolkit.chained_action
-def package_update(up_func, context, data_dict):
-
-    owner_org = data_dict.get('owner_org')
-    if owner_org is None:
-        is_admin = g.userobj.sysadmin
-    else:
-        if helpers.get_org_approval_info(owner_org):
-            is_admin = helpers.is_user_org_admin(owner_org) or g.userobj.sysadmin
-        else:
-            is_admin = True
-
-    # Perform normal update first
-    updated = up_func(context, data_dict)
-
-    # After update: enforce approval workflow
-    if not is_admin:
-        pkg_id = updated['id']
-
-        # Only transition from active → pending, not during creation
-        if updated.get('state') == 'active':
-            # Patch safely AFTER update
-            toolkit.get_action('package_patch')(context, {
-                'id': pkg_id,
-                'state': 'pending',
-                'submitted_action': 'pending',
-                'approval-notes': 'Dataset sent for reapproval'
-            })
-
-            # Create activity
-            toolkit.get_action('approval_activity_create')(context, {
-                'package_id': pkg_id,
-                'submitted_action': 'pending'
-            })
-
-            # Notify admins
-            org = toolkit.get_action('organization_show')(context, {'id': owner_org})
-            admins = helpers.get_org_admins_raw(owner_org)
-
-            import ckanext.approvalworkflow.email as email
-            for user in admins:
-                if user.email:
-                    email.send_approval_needed(user, org, updated)
-
-            h.flash_notice(_('Dataset has been resent for approval.'))
-
-    return updated
-
-
 def approval_activity_create(context, data_dict):
     session = context.get('session')
     if g.userobj:
