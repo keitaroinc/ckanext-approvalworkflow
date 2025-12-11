@@ -127,7 +127,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
         }
 
     # IPackageController
-    def after_create(self, context, pkg_dict):
+    def after_dataset_create(self, context, pkg_dict):
         owner_org = pkg_dict.get('owner_org')
 
         if helpers.get_org_approval_info(owner_org):
@@ -137,6 +137,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
                 toolkit.get_action('package_patch')(
                     context, {'id': pkg_dict['id'], 'state': 'pending'}
                 )
+
 
 def validate_state(key, data, errors, context):
     if "resources" not in data:
