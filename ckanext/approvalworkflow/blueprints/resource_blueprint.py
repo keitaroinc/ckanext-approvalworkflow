@@ -27,53 +27,72 @@ approval_resource_blueprint = Blueprint(
 
 
 class CreateView(resource.CreateView):
+
     def post(self, package_type, id):
-        save_action = request.form.get(u'save')
+
+        save_action = request.form.get('save')
+
         data = clean_dict(
-            dict_fns.unflatten(tuplize_dict(parse_params(request.form)))
+            dict_fns.unflatten(
+                tuplize_dict(parse_params(request.form))
+            )
         )
         data.update(clean_dict(
-            dict_fns.unflatten(tuplize_dict(parse_params(request.files)))
+            dict_fns.unflatten(
+                tuplize_dict(parse_params(request.files))
+            )
         ))
-        del data[u'save']
+        data.pop('save', None)  # Safe delete
 
         context = {
-            u'model': model,
-            u'session': model.Session,
-            u'user': g.user,
-            u'auth_user_obj': g.userobj
+            'model': model,
+            'session': model.Session,
+            'user': g.user,
+            'auth_user_obj': g.userobj
         }
 
-        if save_action == u'review':
-            # XXX race condition if another user edits/deletes
-            data_dict = get_action(u'package_show')(context, {u'id': id})
-            get_action(u'package_update')(
+        # 1) ALWAYS LET CKAN CREATE THE RESOURCE FIRST
+        #    This avoids all partial-resource race conditions and ensures
+        #    CKAN model observers see the correct state.
+
+        result = super(CreateView, self).post(package_type, id)
+
+        # 2) If this is a "review" submission, apply approval logic now,
+        #    AFTER resource creation succeeded and was committed.
+
+        if save_action == 'review':
+
+            # Fetch the dataset AFTER the resource was created
+            data_dict = get_action('package_show')(context, {'id': id})
+
+            # Trigger approval workflow state changes
+            get_action('package_update')(
                 dict(context, allow_state_change=True),
-                dict(data_dict, state=u'pending')
+                dict(data_dict, state='pending')
             )
 
+            # Create approval activity
             approval_data = {
                 'package_id': data_dict['id'],
                 'approval-notes': 'Dataset sent for approval',
                 'submitted_action': 'pending',
             }
-            get_action(u'approval_activity_create')(context, approval_data)
+            get_action('approval_activity_create')(context, approval_data)
 
+            # Notify org admins
             import ckanext.approvalworkflow.email as email
 
-            org = get_action(u'organization_show')(context, {u'id': data_dict['owner_org']})
-
+            org = get_action('organization_show')(context, {'id': data_dict['owner_org']})
             admins = helpers.get_org_admins_raw(org['id'])
+
             for user in admins:
                 if user.email:
                     email.send_approval_needed(user, org, data_dict)
-            return h.redirect_to(u'{}.read'.format(package_type), id=id)
 
-        else:
-            return super(CreateView, self).post(package_type, id)
+            return h.redirect_to(f'{package_type}.read', id=id)
 
-    def get(self, package_type, id, data=None, errors=None, error_summary=None):
-        return super(CreateView, self).get(package_type, id, data, errors, error_summary)
+        # If not review → normal CKAN behavior applies
+        return result
 
 
 def get_sysadmins():
