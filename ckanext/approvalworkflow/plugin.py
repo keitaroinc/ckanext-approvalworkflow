@@ -127,25 +127,16 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
         }
 
     # IPackageController
-    def create(self, entity):
+    def after_create(self, context, pkg_dict):
+        owner_org = pkg_dict.get('owner_org')
 
-        if helpers.get_org_approval_info(entity.owner_org):
+        if helpers.get_org_approval_info(owner_org):
+            is_org_admin = helpers.is_user_org_admin(owner_org) or g.userobj.sysadmin
 
-            if entity.owner_org is None:
-                org_admin = g.userobj.sysadmin
-            else:
-                org_admin = helpers.is_user_org_admin(
-                    entity.owner_org) or g.userobj.sysadmin
-            if org_admin:
-                pass
-            else:
-                if entity.state == 'active':
-                    entity.state = 'pending'
-                return entity
-
-        else:
-            return entity
-
+            if not is_org_admin:
+                toolkit.get_action('package_patch')(
+                    context, {'id': pkg_dict['id'], 'state': 'pending'}
+                )
 
 def validate_state(key, data, errors, context):
     if "resources" not in data:
