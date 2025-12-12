@@ -2,7 +2,7 @@
 
 {% block content_action %}
   {% set aw_active = h.get_org_approval_info(pkg.organization.id) %}
-  {% if aw_active %}
+  {% if h.check_access('package_update', {'id':pkg.id }) and aw_active %}
     {% link_for _('Request Review'),
         named_route='dataset_approval_workflow.request_dataset_review',
         id=pkg.id,

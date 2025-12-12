@@ -11,7 +11,6 @@ from ckanext.approvalworkflow import helpers
 from ckanext.approvalworkflow.blueprints.approval_workflow_blueprint import approval_workflow as approval_workflow_blueprint
 from ckanext.approvalworkflow.blueprints.organization_aw_blueprint import org_approval_workflow as org_approval_workflow
 from ckanext.approvalworkflow.blueprints.aw_dataset_blueprint import dataset_approval_workflow as dataset_approval_workflow
-from ckanext.approvalworkflow.blueprints.resource_blueprint import approval_resource_blueprint as approval_resource_blueprint
 
 
 class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
@@ -89,7 +88,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
 
     def get_blueprint(self):
         return [approval_workflow_blueprint, org_approval_workflow,
-                dataset_approval_workflow, approval_resource_blueprint]
+                dataset_approval_workflow]
 
     # IConfigurer
 
