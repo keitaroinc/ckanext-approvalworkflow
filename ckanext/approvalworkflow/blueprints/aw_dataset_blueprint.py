@@ -151,6 +151,45 @@ class ApprovalStream(MethodView):
         pass
 
 
+def request_dataset_review(id, package_type):
+    context = {
+        u'model': model,
+        u'session': model.Session,
+        u'user': g.user,
+        u'auth_user_obj': g.userobj,
+    }
+    try:
+        pkg_dict = get_action(u'package_show')(context, {u'id': id})
+    except NotFound:
+        return base.abort(404, _(u'Dataset not found'))
+    except NotAuthorized:
+        return base.abort(
+            403,
+            _(u'Unauthorized to edit package %s') % u''
+        )
+
+    # Create approval activity
+    approval_data = {
+        'package_id': pkg_dict['id'],
+        'approval-notes': 'Dataset sent for approval',
+        'submitted_action': 'pending',
+    }
+    get_action('approval_activity_create')(context, approval_data)
+
+    # Notify org admins
+    import ckanext.approvalworkflow.email as email
+
+    org = get_action('organization_show')(context, {'id': pkg_dict['owner_org']})
+    admins = helpers.get_org_admins_raw(org['id'])
+
+    for user in admins:
+        if user.email:
+            email.send_approval_needed(user, org, pkg_dict)
+
+    h.flash_notice(_(u'Dataset has {} been sent for review.'.format(pkg_dict['title'])))
+    return h.redirect_to(u'dataset.read', id=pkg_dict['name'])
+
+
 dataset_approval_workflow.add_url_rule(
     u'/datasetapproval/<id>',
     view_func=DatasetApproval.as_view(str(u'datasetapproval'))
@@ -160,3 +199,7 @@ dataset_approval_workflow.add_url_rule(
     u'/datasetapproval/activity/<id>',
     view_func=ApprovalStream.as_view(str(u'approvalstream'))
 )
+
+dataset_approval_workflow.add_url_rule(
+    u'/datasetapproval/request_review/<id>',
+    view_func=request_dataset_review)

@@ -1,5 +1,19 @@
 {% ckan_extends %}
 
+{% block content_action %}
+  {% set aw_active = h.get_org_approval_info(pkg.organization.id) %}
+  {% if aw_active %}
+    {% link_for _('Request Review'),
+        named_route='dataset_approval_workflow.request_dataset_review',
+        id=pkg.id,
+        class_='btn btn-default',
+        icon='wrench'
+    %}
+  {% endif %}
+  {{ super() }}
+{% endblock %}
+
+
 {% block content_primary_nav %}
   {{ super() }}
   {# {{ h.build_nav_icon('activity.package_activity', _('Approval Stream'), id=pkg.id if is_activity_archive else pkg.name, icon='clock') }} #}

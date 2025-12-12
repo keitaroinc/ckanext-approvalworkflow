@@ -123,6 +123,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
                 helpers.get_approvalworkflow_org_info,
             'get_approval_org_info': helpers.get_approval_org_info,
             'is_user_org_admin': helpers.is_user_org_admin,
+            'get_org_approval_info': helpers.get_org_approval_info,
         }
 
     # IPackageController
