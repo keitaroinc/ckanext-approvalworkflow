@@ -7,9 +7,6 @@ from ckanext.approvalworkflow.cli import get_commands
 from ckanext.approvalworkflow import actions
 from ckanext.approvalworkflow import auth
 from ckanext.approvalworkflow import helpers
-from ckanext.approvalworkflow import validators
-
-# new blueprint
 from ckanext.approvalworkflow.blueprints.approval_workflow_blueprint import approval_workflow as approval_workflow_blueprint
 from ckanext.approvalworkflow.blueprints.organization_aw_blueprint import org_approval_workflow as org_approval_workflow
 from ckanext.approvalworkflow.blueprints.aw_dataset_blueprint import dataset_approval_workflow as dataset_approval_workflow
@@ -25,7 +22,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
-    plugins.implements(plugins.IValidators)
+
 
     # IClick
 
@@ -73,14 +70,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
             'get_org_approval_info': helpers.get_org_approval_info,
         }
 
-    # IValidators
-    def get_validators(self):
-
-        return {
-            'prevent_editor_make_dataset_public':
-                validators.prevent_editor_make_dataset_public,
-        }
-
     # IPackageController
 
     def create(self, entity):
@@ -111,7 +100,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
 
         return entity
 
-    def update(self, entity):
+    def edit(self, entity):
 
         if entity.private:
             return entity

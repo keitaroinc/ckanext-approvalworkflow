@@ -85,10 +85,10 @@ class DatasetApproval(MethodView):
         try:
             pkg = get_action(u'package_show')(context, {u'id': id})
             if submitted_action == 'approved':
-                pkg['state'] = u'active'
+                pkg['private'] = False
                 get_action(u'package_update')(context, pkg)
             elif submitted_action == 'rejected':
-                pkg['state'] = u'draft'
+                pkg['private'] = True
                 get_action(u'package_update')(context, pkg)
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
