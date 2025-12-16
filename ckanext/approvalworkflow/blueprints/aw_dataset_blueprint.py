@@ -82,7 +82,6 @@ class DatasetApproval(MethodView):
         submitted_action = tk.request.form.get('action')
         try:
             pkg = get_action(u'package_show')(context, {u'id': id})
-            breakpoint()
             if submitted_action == 'approved':
                 get_action('package_patch')(
                     context, {'id': pkg['id'], 'private': False}
