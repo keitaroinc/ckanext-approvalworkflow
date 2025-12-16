@@ -4,7 +4,7 @@ import ckanext.approvalworkflow.db as db
 import ckan.logic as logic
 import datetime
 import logging
-from ckan.common import _
+from ckan.common import _ # noqa
 from ckan.model.types import make_uuid
 from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
 

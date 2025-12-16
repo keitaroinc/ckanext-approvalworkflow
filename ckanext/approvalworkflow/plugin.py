@@ -23,7 +23,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
 
-
     # IClick
 
     def get_commands(self):

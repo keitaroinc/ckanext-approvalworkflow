@@ -12,7 +12,6 @@ import ckan.logic as logic
 import ckan.model as model
 from ckan.common import _, g, request
 from ckan.views.home import CACHE_PARAMETERS
-import ckan.lib.navl.dictization_functions
 import ckan.authz as authz
 
 from ckanext.approvalworkflow import actions
