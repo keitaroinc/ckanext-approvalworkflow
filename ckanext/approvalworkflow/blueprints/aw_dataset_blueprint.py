@@ -80,16 +80,17 @@ class DatasetApproval(MethodView):
         context = self._prepare()
         approval_notes = tk.request.form.get('approval-notes')
         submitted_action = tk.request.form.get('action')
-        # if u'cancel' in request.form:
-        #     return h.redirect_to(u'{}.edit'.format(package_type), id=id)
         try:
             pkg = get_action(u'package_show')(context, {u'id': id})
+            breakpoint()
             if submitted_action == 'approved':
-                pkg['private'] = False
-                get_action(u'package_update')(context, pkg)
+                get_action('package_patch')(
+                    context, {'id': pkg['id'], 'private': False}
+                    )
             elif submitted_action == 'rejected':
-                pkg['private'] = True
-                get_action(u'package_update')(context, pkg)
+                get_action('package_patch')(
+                    context, {'id': pkg['id'], 'private': True}
+                    )
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
         except NotAuthorized:
