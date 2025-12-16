@@ -16,6 +16,7 @@ from ckanext.approvalworkflow.blueprints.aw_dataset_blueprint import dataset_app
 
 log = logging.getLogger(__name__)
 
+
 class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IBlueprint)
@@ -193,6 +194,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
         return data_dict
 
     def after_dataset_update(self, context, pkg_dict):
-        
+
         # Hook called after a dataset is updated.
         return pkg_dict

@@ -16,10 +16,10 @@
   <form method='post' action="" id="approval-config-form" enctype="multipart/form-data">
     {% block approval_form %}
         {{ form.select('approval_workflow_active', id='field-approval-workflow-active', label=_('Activate approval workflow'), options=data['activity_workflow_options'], selected=data['approval_workflow_active'], error=error) }}
-
+        {#
         <div id="edit-options">
         {{ form.checkbox('ckan.edit-button', label="Disable edit button" ,value=True, checked=data.deactivate_edit, error=error) }}
-        </div>
+        </div>#}
         <div id="organizations">
           <h3>{{ _('In order to activate the Approval workflow, go to the specific organization and add the configuration') }}</h3>
           <h5> {{ _('Click on the link bellow to go to the list of available Organizations  ') }}</h5>
