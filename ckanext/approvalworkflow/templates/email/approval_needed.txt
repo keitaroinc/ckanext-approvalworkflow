@@ -2,11 +2,8 @@ Dear {{ user_fullname }},
 
 A dataset has been created or updated within the {{ group_title }} organization and is now pending your review.
 
-You can view the individual dataset here:
+You can view the dataset here:
 {{ dataset_link }}
-
-To review all datasets currently awaiting approval, please visit:
-{{ aw_link_datasets }}
 
 Thank you for your attention and prompt action.
 
