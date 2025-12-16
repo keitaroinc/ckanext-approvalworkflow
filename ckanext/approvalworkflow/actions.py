@@ -114,6 +114,10 @@ def approval_activity_create(context, data_dict):
         user_id = 'not logged in'
 
     try:
+        if data_dict['submitted_action'] == 'approved':
+            get_action('package_patch')(
+                context, {'id': data_dict['package_id'], 'private': False}
+                )
         activity_workflow_dataset = ApprovalWorkflowDataset()
         activity_workflow_dataset.id = make_uuid()
         activity_workflow_dataset.package_id = data_dict['package_id']
