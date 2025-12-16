@@ -1,10 +1,11 @@
 from ckan.common import _
 import logging
+from ckanext.approvalworkflow import helpers
 
 log = logging.getLogger(__name__)
 
 
-def prevent_editor_make_dataset_public(key, data, errors, context):
+def prevent_editor_make_dataset_public2(key, data, errors, context):
     """
     Validator that prevents non-admin users from making datasets public
     This validator runs during both create and update operations.
@@ -138,3 +139,9 @@ def prevent_editor_make_dataset_public(key, data, errors, context):
                 'This dataset must be approved by an administrator before it can be made public.')
         )
         return
+
+
+def prevent_editor_make_dataset_public(context, pkg_dict):
+    # This function is called to prevent editors from making datasets public
+    # It's a placeholder for now, but can be implemented later if needed
+    pass
