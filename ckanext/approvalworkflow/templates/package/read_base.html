@@ -3,12 +3,31 @@
 {% block content_action %}
   {% set aw_active = h.get_org_approval_info(pkg.organization.id) %}
   {% if h.check_access('package_update', {'id':pkg.id }) and aw_active %}
-    {% link_for _('Request Review'),
+  <div class="dropdown btn-group">
+    <a href="#" class="btn btn-primary dropdown-toggle" type="button" id="dropdownExplorer" data-bs-toggle="dropdown" aria-expanded="false">
+      {{ _('Dataset Approval') }}
+      <span class="caret"></span>
+    </a>
+    <ul class="dropdown-menu">
+    <li>{% link_for _('Request Review'),
         named_route='dataset_approval_workflow.request_dataset_review',
         id=pkg.id,
-        class_='btn btn-default',
-        icon='wrench'
-    %}
+        class_='dropdown-item',
+        icon='eye'
+        %}
+    </li>
+    <li>
+      {% set aw_pkg = h.get_approvalworkflow_org_info({}, pkg.id) %}
+      {% set org_admin = h.is_user_org_admin(aw_pkg['organization_id']) or g.userobj.sysadmin %}
+      {% if org_admin %}
+          <a class="dropdown-item" href="/dataset/datasetapproval/{{ pkg.id }}">
+          <i class="fa fa-check"></i>
+          {{ _('Approve Dataset') }}
+          </a>
+      {% endif %}
+    </li>
+    </ul>
+  </div>
   {% endif %}
   {{ super() }}
 {% endblock %}
