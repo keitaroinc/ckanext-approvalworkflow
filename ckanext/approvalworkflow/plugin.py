@@ -76,51 +76,73 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
         if entity.private:
             return entity
 
+        workflow_info = helpers.get_approvalworkflow_info({})
+        if workflow_info and workflow_info['approval_workflow_active'] == '1':
+            return entity
+
         owner_org = entity.owner_org
 
         if not owner_org:
             log.info("Dataset has no owner organization, skipping approval check")
             return entity
 
-        is_org_admin = helpers.is_user_org_admin(owner_org)
-        is_sysadmin = g.userobj and g.userobj.sysadmin
+        if (helpers.get_org_approval_info(owner_org) or
+                (workflow_info and workflow_info['approval_workflow_active'] == '2')):
 
-        if not (is_org_admin or is_sysadmin):
-            log.info(
-                "Dataset created by non-admin user, "
-                "requires approval for public visibility"
-            )
-            entity.private = True
-            flash_msg = _(
-                "Your dataset has been set as private and "
-                "requires approval to be made public."
-            )
-            toolkit.h.flash_notice(flash_msg)
+            is_org_admin = helpers.is_user_org_admin(owner_org)
+            is_sysadmin = g.userobj and g.userobj.sysadmin
 
-        return entity
+            if not (is_org_admin or is_sysadmin):
+                log.info(
+                    "Dataset created by non-admin user, "
+                    "requires approval for public visibility"
+                )
+                entity.private = True
+                flash_msg = _(
+                    "Your dataset has been set as private and "
+                    "requires approval to be made public."
+                )
+                toolkit.h.flash_notice(flash_msg)
+
+            return entity
+
+        else:
+            return entity
 
     def edit(self, entity):
 
         if entity.private:
             return entity
 
+        workflow_info = helpers.get_approvalworkflow_info({})
+        if workflow_info and workflow_info['approval_workflow_active'] == '1':
+            return entity
+
         owner_org = entity.owner_org
+
         if not owner_org:
             log.info("Dataset has no owner organization, skipping approval check")
             return entity
 
-        is_org_admin = helpers.is_user_org_admin(owner_org)
-        is_sysadmin = g.userobj and g.userobj.sysadmin
+        if (helpers.get_org_approval_info(owner_org) or
+                (workflow_info and workflow_info['approval_workflow_active'] == '2')):
 
-        if not (is_org_admin or is_sysadmin):
-            log.info(
-                "Dataset updated by non-admin user, "
-                "requires approval for public visibility"
-            )
-            entity.private = True
-            flash_msg = _(
-                "Your dataset has been set as private and "
-                "requires approval to be made public."
-            )
-            toolkit.h.flash_notice(flash_msg)
-        return entity
+            is_org_admin = helpers.is_user_org_admin(owner_org)
+            is_sysadmin = g.userobj and g.userobj.sysadmin
+
+            if not (is_org_admin or is_sysadmin):
+                log.info(
+                    "Dataset updated by non-admin user, "
+                    "requires approval for public visibility"
+                )
+                entity.private = True
+                flash_msg = _(
+                    "Your dataset has been set as private and "
+                    "requires approval to be made public."
+                )
+                toolkit.h.flash_notice(flash_msg)
+
+            return entity
+
+        else:
+            return entity
