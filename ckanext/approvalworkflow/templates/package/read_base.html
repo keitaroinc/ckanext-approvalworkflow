@@ -1,7 +1,9 @@
 {% ckan_extends %}
 
 {% block content_action %}
-  {% set aw_active = h.get_org_approval_info(pkg.organization.id) %}
+  {% set aw_global = h.get_approvalworkflow_info({}) %}
+  {% set aw_active = h.get_org_approval_info(pkg.organization.id) 
+    or aw_global.approval_workflow_active == '2'%}
   {% if h.check_access('package_update', {'id':pkg.id }) and aw_active %}
   <div class="dropdown btn-group">
     <a href="#" class="btn btn-primary dropdown-toggle" type="button" id="dropdownExplorer" data-bs-toggle="dropdown" aria-expanded="false">

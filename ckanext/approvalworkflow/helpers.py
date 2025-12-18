@@ -90,7 +90,8 @@ def get_org_approval_info(org_id):
             .filter(db.ApprovalWorkflowOrganization.organization_id == org_id)
             .first()
         )
-        if approval_info_org.active:
-            return True
+        if approval_info_org:
+            if approval_info_org.active:
+                return True
         else:
             return False
