@@ -12,34 +12,30 @@ This extension provides three configuration modes for managing the dataset appro
 - **Active** – The approval workflow is enabled globally for all organizations.
 - **Activate Approval Workflow per Organization** – The workflow can be selectively enabled or disabled at the organization level.
 
+<img width="1242" height="843" alt="Image" src="https://github.com/user-attachments/assets/7cbcb9d0-3bb9-45fc-8da8-740ecec9b04e" />
+
 ---
 
 ## Dataset Approval Flow
 
-When a user submits a new dataset, it enters an **Approval Pending** state. At this point:
+When a user submits a new dataset, users who are not **admin** or **sysadmin** are not permitted to set the dataset visibility to **public**. If a non-admin user attempts to publish a dataset, the extension automatically reverts the visibility to **private** and displays a notification indicating that the dataset has not yet been approved.
 
-### 1. Sent to Review Form  
-When submitting a dataset, users see a **Review** button on the same page used for adding resources. Selecting this option places the dataset into the approval queue.
+### 1. Request Approval  
 
-<img width="1237" height="848" alt="Sent to review form" src="https://github.com/user-attachments/assets/59620474-5994-430a-9791-5a6edaab3d73" />
+A request for approval may be initiated by any user with **modify** permissions on the dataset by clicking the **Request Review** button. Upon submission of the approval request, an email notification is sent to all administrators of the corresponding organization.
 
----
-
-### 2. Pending Datasets List  
-Organization administrators can view all datasets currently awaiting approval.
-
-<img width="1237" height="521" alt="Pending datasets list" src="https://github.com/user-attachments/assets/0d68db39-d541-46f1-a6cb-30889a8db393" />
+<img width="1242" height="518" alt="Image" src="https://github.com/user-attachments/assets/dde95c5f-ad89-40b4-ac16-0fddaf453f85" />
 
 ---
 
-### 3. Approval Form  
+### 2. Approval Form  
 Admins and sysadmins can approve or reject the dataset and optionally include notes.
 
 <img width="1237" height="539" alt="Approval form" src="https://github.com/user-attachments/assets/2943aa5b-a4b1-4366-a57a-715d3270b75a" />
 
 ---
 
-### 4. Approval Stream Logging  
+### 3. Approval Stream Logging  
 Every approval or rejection event is tracked in the Approval Stream, similar to CKAN’s Activity Stream.
 
 <img width="1237" height="578" alt="Approval activity stream" src="https://github.com/user-attachments/assets/c53acda1-a8d3-40c7-b828-75b07cb57c1d" />
@@ -53,8 +49,8 @@ Every approval or rejection event is tracked in the Approval Stream, similar to 
 2. **Review actions** — Organization administrators or system administrators can either approve or reject the dataset.
 
 3. **Publication control** —  
-   - Approved datasets move to a published state.  
-   - Rejected datasets are saved as drafts.
+   - Approved datasets move to a public state.  
+   - Rejected datasets are private.
 
 4. **Approval Stream logging** — Every action is recorded with:  
    - The user who performed the action  
@@ -68,7 +64,7 @@ This approval flow ensures that dataset publishing follows a consistent, auditab
 ## Important Notes
 
 **Note:**  
-Any update made to a dataset by a **non-admin user** will automatically place the dataset back into the **Pending Approval** state.  
+Any update made to a dataset by a **non-admin user** will automatically place the dataset back into the **private** state.  
 Dataset creations and updates performed by **organization administrators** or **sysadmins** are **not** subject to the approval workflow.
 
 
