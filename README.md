@@ -12,7 +12,7 @@ This extension provides three configuration modes for managing the dataset appro
 - **Active** – The approval workflow is enabled globally for all organizations.
 - **Activate Approval Workflow per Organization** – The workflow can be selectively enabled or disabled at the organization level.
 
-<img width="1242" height="843" alt="Image" src="https://github.com/user-attachments/assets/7cbcb9d0-3bb9-45fc-8da8-740ecec9b04e" />
+<img width="1242" height="518" alt="Image" src="https://github.com/user-attachments/assets/dde95c5f-ad89-40b4-ac16-0fddaf453f85" />
 
 ---
 
@@ -24,7 +24,7 @@ When a user submits a new dataset, users who are not **admin** or **sysadmin** a
 
 A request for approval may be initiated by any user with **modify** permissions on the dataset by clicking the **Request Review** button. Upon submission of the approval request, an email notification is sent to all administrators of the corresponding organization.
 
-<img width="1242" height="518" alt="Image" src="https://github.com/user-attachments/assets/dde95c5f-ad89-40b4-ac16-0fddaf453f85" />
+<img width="1242" height="843" alt="Image" src="https://github.com/user-attachments/assets/7cbcb9d0-3bb9-45fc-8da8-740ecec9b04e" />
 
 ---
 
