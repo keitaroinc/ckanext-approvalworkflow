@@ -90,7 +90,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
         if not has_app_context():
             log.info("Create detected outside of app context. Bypassing approval.")
             return entity
-        
+
         if (helpers.get_org_approval_info(owner_org) or
                 (workflow_info and workflow_info['approval_workflow_active'] == '2')):
 
