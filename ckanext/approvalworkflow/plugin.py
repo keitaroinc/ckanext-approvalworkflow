@@ -1,6 +1,7 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
 from ckan.common import _, g
+from flask import has_app_context
 import logging
 
 from ckanext.approvalworkflow.cli import get_commands
@@ -81,11 +82,15 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
             return entity
 
         owner_org = entity.owner_org
-
         if not owner_org:
             log.info("Dataset has no owner organization, skipping approval check")
             return entity
 
+        # Context Check: If NOT in a web request bypass approval workflow.
+        if not has_app_context():
+            log.info("Edit detected outside of app context (xloader). Bypassing approval.")
+            return entity
+        
         if (helpers.get_org_approval_info(owner_org) or
                 (workflow_info and workflow_info['approval_workflow_active'] == '2')):
 
@@ -119,9 +124,13 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
             return entity
 
         owner_org = entity.owner_org
-
         if not owner_org:
             log.info("Dataset has no owner organization, skipping approval check")
+            return entity
+
+        # Context Check: If NOT in a web request (e.g., xloader), bypass the approval workflow.
+        if not has_app_context():
+            log.info("Edit detected outside of app context (xloader). Bypassing approval.")
             return entity
 
         if (helpers.get_org_approval_info(owner_org) or

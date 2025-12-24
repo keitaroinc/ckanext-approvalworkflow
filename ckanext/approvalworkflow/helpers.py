@@ -1,6 +1,7 @@
 import ckanext.approvalworkflow.db as db
 from ckan.plugins import toolkit
 from ckan.model import Member, User, Session
+from flask import has_app_context
 
 g = toolkit.g
 
@@ -40,6 +41,8 @@ def get_organization_info_for_user(include_dataset_count=True):
         such as user role ('capacity')
        for the ones that the user has permission.
     '''
+    if not has_app_context():
+        return []
     context = {'user': g.user}
     data_dict = {
         'id': g.userobj.id,
@@ -53,10 +56,11 @@ def is_user_org_admin(org_id):
         the user has permissions for'''
     info = get_organization_info_for_user()
 
-    for organization in info:
-        # checking if the user has the role of admin in the organizations for which it has permissions
-        if (organization.get('id') == org_id and organization.get('capacity') == 'admin'):
-            return True
+    if info:
+        for organization in info:
+            # checking if the user has the role of admin in the organizations for which it has permissions
+            if (organization.get('id') == org_id and organization.get('capacity') == 'admin'):
+                return True
 
     return False
 
