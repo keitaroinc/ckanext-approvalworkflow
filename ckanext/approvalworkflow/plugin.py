@@ -88,7 +88,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
 
         # Context Check: If NOT in a web request bypass approval workflow.
         if not has_app_context():
-            log.info("Edit detected outside of app context (xloader). Bypassing approval.")
+            log.info("Create detected outside of app context. Bypassing approval.")
             return entity
         
         if (helpers.get_org_approval_info(owner_org) or
