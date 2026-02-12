@@ -13,5 +13,3 @@ def workflow(self, context):
             return {'success': True}
     else:
         return {'success': False}
-
-
