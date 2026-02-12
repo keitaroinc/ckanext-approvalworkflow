@@ -122,6 +122,9 @@ If your CKAN instance uses additional dataset types defined through **ckanext-sc
 
 ``ckanext.approvalworkflow.dataset_types = report, camel-photos, whitepaper``
 
+To enable the dataset approval stream exclusively for authenticated users and hide it from the public, set the following configuration option to false. The default value is true.
+
+``ckanext.approvalworkflow.show_stream = false``
 
 ## Developer installation
 
