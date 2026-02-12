@@ -138,7 +138,15 @@ class ApprovalStream(MethodView):
                 403,
                 _(u'Unauthorized to edit package %s') % u''
             )
-        approval_stream = get_action(u'approval_activity_read')(context, pkg_dict['id'])
+
+        if helpers.show_approval_stream() or g.userobj:
+            approval_stream = get_action(u'approval_activity_read')(context, pkg_dict['id'])
+        else:
+            return base.abort(
+                403,
+                _(u'Unauthorized to view approval stream %s') % u''
+            )
+
         return base.render(
             u'package/approval_stream.html',
             {

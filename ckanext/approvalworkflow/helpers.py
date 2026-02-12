@@ -99,3 +99,11 @@ def get_org_approval_info(org_id):
                 return True
         else:
             return False
+
+
+def show_approval_stream():
+    aw_stream = toolkit.config.get(
+        'ckanext.approvalworkflow.show_stream',
+        True
+    )
+    return toolkit.asbool(aw_stream)

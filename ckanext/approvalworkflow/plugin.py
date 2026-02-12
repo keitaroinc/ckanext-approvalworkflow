@@ -68,6 +68,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
             'get_approval_org_info': helpers.get_approval_org_info,
             'is_user_org_admin': helpers.is_user_org_admin,
             'get_org_approval_info': helpers.get_org_approval_info,
+            'show_approval_stream': helpers.show_approval_stream,
         }
 
     # IPackageController
