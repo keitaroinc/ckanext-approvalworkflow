@@ -183,6 +183,9 @@ def request_dataset_review(id, package_type):
         'submitted_action': 'pending',
     }
     get_action('approval_activity_create')(context, approval_data)
+    get_action(u'package_patch')(
+        context, {'id': pkg_dict['id'], 'approval_state': 'pending'}
+    )
 
     # Notify org admins
     import ckanext.approvalworkflow.email as email
