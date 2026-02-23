@@ -84,11 +84,15 @@ class DatasetApproval(MethodView):
             pkg = get_action(u'package_show')(context, {u'id': id})
             if submitted_action == 'approved':
                 get_action('package_patch')(
-                    context, {'id': pkg['id'], 'private': False}
+                    context, {'id': pkg['id'],
+                              'private': False,
+                              'approval_state': 'approved'}
                     )
             elif submitted_action == 'rejected':
                 get_action('package_patch')(
-                    context, {'id': pkg['id'], 'private': True}
+                    context, {'id': pkg['id'],
+                              'private': True,
+                              'approval_state': 'rejected'}
                     )
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
