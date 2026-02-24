@@ -11,6 +11,7 @@ from ckanext.approvalworkflow import helpers
 from ckanext.approvalworkflow.blueprints.approval_workflow_blueprint import approval_workflow as approval_workflow_blueprint
 from ckanext.approvalworkflow.blueprints.organization_aw_blueprint import org_approval_workflow as org_approval_workflow
 from ckanext.approvalworkflow.blueprints.aw_dataset_blueprint import dataset_approval_workflow as dataset_approval_workflow
+from ckanext.approvalworkflow.validators import approval_state_value
 
 log = logging.getLogger(__name__)
 
@@ -23,6 +24,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
     plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IValidators)
 
     # IClick
 
@@ -156,3 +158,7 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin):
 
         else:
             return entity
+
+    # IValidators
+    def get_validators(self):
+        return {"approval_state_value": approval_state_value, }
