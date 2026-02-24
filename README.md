@@ -61,6 +61,12 @@ This approval flow ensures that dataset publishing follows a consistent, auditab
 
 ---
 
+Datasets that are pending approval or have been rejected can be searched using the same interface and page as standard dataset searches. Use the Order By dropdown menu and select the appropriate approval status (Pending or Rejected).
+
+<img width="1237" height="578" alt="Image" src="https://github.com/user-attachments/assets/97ed0aeb-afad-45f8-a645-a2e6d840b1c7" />
+
+---
+
 ## Important Notes
 
 **Note:**  
@@ -109,7 +115,17 @@ To install ckanext-approvalworkflow:
 
     `ckan -c /path/to/ini/file approval_workflow initdb`
 
-5. If you are using ckanext-datasetversions, make sure to add `datasetversions` plugin after `approvalworkflow` in your CKAN config file
+5. `ckanext-approvalworkflow` is designed to work together with `ckanext-scheming`.  
+When the scheming extension is enabled, you must explicitly add the approval
+state field to your dataset schema configuration.
+
+    ```yaml
+    - field_name: approval_state
+      label: Approval Status
+      form_snippet: null
+      display_snippet: null
+      validators: approval_state_value ignore_missing
+    ```
 
 6. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu:
 

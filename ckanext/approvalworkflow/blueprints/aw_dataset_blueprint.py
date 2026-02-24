@@ -84,11 +84,15 @@ class DatasetApproval(MethodView):
             pkg = get_action(u'package_show')(context, {u'id': id})
             if submitted_action == 'approved':
                 get_action('package_patch')(
-                    context, {'id': pkg['id'], 'private': False}
+                    context, {'id': pkg['id'],
+                              'private': False,
+                              'approval_state': 'approved'}
                     )
             elif submitted_action == 'rejected':
                 get_action('package_patch')(
-                    context, {'id': pkg['id'], 'private': True}
+                    context, {'id': pkg['id'],
+                              'private': True,
+                              'approval_state': 'rejected'}
                     )
         except NotFound:
             return base.abort(404, _(u'Dataset not found'))
@@ -183,6 +187,9 @@ def request_dataset_review(id, package_type):
         'submitted_action': 'pending',
     }
     get_action('approval_activity_create')(context, approval_data)
+    get_action(u'package_patch')(
+        context, {'id': pkg_dict['id'], 'approval_state': 'pending'}
+    )
 
     # Notify org admins
     import ckanext.approvalworkflow.email as email

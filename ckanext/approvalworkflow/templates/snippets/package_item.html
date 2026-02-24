@@ -1,0 +1,21 @@
+{% ckan_extends %}
+
+{% block heading_private %}
+  {% if package.private %}
+    <span class="dataset-private badge bg-secondary">
+        <i class="fa fa-lock"></i>
+        {{ _('Private') }}
+    </span>
+  {% endif %}
+  {% if package.approval_state == 'pending' %}
+    <span style="margin-right: 3px;" class="badge bg-warning pull-right">
+      <i class="fa fa-clock"></i>
+      {{ _('Pending Approval') }}
+    </span>
+    {% elif package.approval_state == 'rejected' %} 
+    <span style="margin-right: 3px;" class="badge bg-danger pull-right">
+      <i class="fa fa-times"></i>
+      {{ _('Rejected') }}
+    </span>
+  {% endif %}
+{% endblock %}
