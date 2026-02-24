@@ -121,10 +121,10 @@ state field to your dataset schema configuration.
 
     ```yaml
     - field_name: approval_state
-    label: Approval Status
-    form_snippet: null
-    display_snippet: null
-    validators: approval_state_value ignore_missing
+      label: Approval Status
+      form_snippet: null
+      display_snippet: null
+      validators: approval_state_value ignore_missing
     ```
 
 6. Restart CKAN. For example if you've deployed CKAN with Apache on Ubuntu:
