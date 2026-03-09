@@ -1,6 +1,7 @@
 import ckanext.approvalworkflow.db as db
 from ckan.plugins import toolkit
 from ckan.model import Member, User, Session
+from flask import has_app_context
 
 g = toolkit.g
 
@@ -40,6 +41,8 @@ def get_organization_info_for_user(include_dataset_count=True):
         such as user role ('capacity')
        for the ones that the user has permission.
     '''
+    if not has_app_context():
+        return []
     context = {'user': g.user}
     data_dict = {
         'id': g.userobj.id,
@@ -53,10 +56,11 @@ def is_user_org_admin(org_id):
         the user has permissions for'''
     info = get_organization_info_for_user()
 
-    for organization in info:
-        # checking if the user has the role of admin in the organizations for which it has permissions
-        if (organization.get('id') == org_id and organization.get('capacity') == 'admin'):
-            return True
+    if info:
+        for organization in info:
+            # checking if the user has the role of admin in the organizations for which it has permissions
+            if (organization.get('id') == org_id and organization.get('capacity') == 'admin'):
+                return True
 
     return False
 
@@ -73,3 +77,33 @@ def get_org_admins_raw(org_id):
         .all()
     )
     return admins
+
+
+def get_org_approval_info(org_id):
+    """Return True if organization with org_id has approval workflow enabled"""
+    approval_info_global = (
+        Session.query(db.ApprovalWorkflow).first()
+    )
+    if approval_info_global == 1:  # approval workflow disabled globally
+        return False
+    elif approval_info_global == 2:  # approval workflow enabled globally
+        return True
+    else:  # approval workflow is determined per organization
+        approval_info_org = (
+            Session.query(db.ApprovalWorkflowOrganization)
+            .filter(db.ApprovalWorkflowOrganization.organization_id == org_id)
+            .first()
+        )
+        if approval_info_org:
+            if approval_info_org.active:
+                return True
+        else:
+            return False
+
+
+def show_approval_stream():
+    aw_stream = toolkit.config.get(
+        'ckanext.approvalworkflow.show_stream',
+        True
+    )
+    return toolkit.asbool(aw_stream)

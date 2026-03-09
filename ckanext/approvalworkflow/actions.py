@@ -1,18 +1,18 @@
 from ckan.common import g
 import ckan.plugins.toolkit as toolkit
-import ckan.plugins as p
 import ckanext.approvalworkflow.db as db
 import ckan.logic as logic
 import datetime
 import logging
+from ckan.common import _ # noqa
 from ckan.model.types import make_uuid
 from ckanext.approvalworkflow.db import ApprovalWorkflowDataset
-from ckanext.approvalworkflow import helpers
 
 ValidationError = toolkit.ValidationError
 asbool = toolkit.asbool
 NotFound = logic.NotFound
 log = logging.getLogger(__name__)
+get_action = logic.get_action
 
 
 def workflow(self, context):
@@ -53,7 +53,11 @@ def save_workflow_options(self, context, data_dict):
         db_model.deactivate_edit = False
 
         # find Organizations
-        aw_org_model = db.ApprovalWorkflowOrganization.approval_workflow_organization(approvalworkflow_id=db_model.id)
+        aw_org_model = (
+            db.ApprovalWorkflowOrganization.approval_workflow_organization(
+                approvalworkflow_id=db_model.id
+                )
+        )
 
         if aw_org_model:
             for org in aw_org_model:
@@ -67,7 +71,6 @@ def save_workflow_options(self, context, data_dict):
 
 
 def save_org_workflow_options(self, context, data_dict):
-    # session = context.get('session')
     userobj = context.get("auth_user_obj", None)
     organization = data_dict['organization']
 
@@ -77,7 +80,6 @@ def save_org_workflow_options(self, context, data_dict):
     approval_workflow = db.ApprovalWorkflow().get()
 
     if approval_workflow:
-        # aw_dict = db.table_dictize(approval_workflow, context)
 
         db_model = db.ApprovalWorkflowOrganization.get(organization_id=organization)
 
@@ -101,23 +103,6 @@ def save_org_workflow_options(self, context, data_dict):
 
         db_model.save()
     return
-
-
-@p.toolkit.chained_action
-def package_update(up_func, context, data_dict):
-
-    if data_dict[u'owner_org'] is None:
-        org_admin = g.userobj.sysadmin
-    else:
-        org_admin = helpers.is_user_org_admin(
-            data_dict[u'owner_org']) or g.userobj.sysadmin
-
-    if org_admin:
-        pass
-    else:
-        data_dict['state'] = 'pending'
-    dataset_dict = up_func(context, data_dict)
-    return dataset_dict
 
 
 def approval_activity_create(context, data_dict):

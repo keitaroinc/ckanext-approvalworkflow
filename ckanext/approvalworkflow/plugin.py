@@ -1,93 +1,41 @@
 import ckan.plugins as plugins
 import ckan.plugins.toolkit as toolkit
+from ckan.common import _, g
+from flask import has_app_context
+import logging
 
 from ckanext.approvalworkflow.cli import get_commands
 from ckanext.approvalworkflow import actions
 from ckanext.approvalworkflow import auth
 from ckanext.approvalworkflow import helpers
-
-# new blueprint
 from ckanext.approvalworkflow.blueprints.approval_workflow_blueprint import approval_workflow as approval_workflow_blueprint
 from ckanext.approvalworkflow.blueprints.organization_aw_blueprint import org_approval_workflow as org_approval_workflow
 from ckanext.approvalworkflow.blueprints.aw_dataset_blueprint import dataset_approval_workflow as dataset_approval_workflow
-from ckanext.approvalworkflow.blueprints.resource_blueprint import approval_resource_blueprint as approval_resource_blueprint
+from ckanext.approvalworkflow.validators import approval_state_value
+
+log = logging.getLogger(__name__)
 
 
-class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm):
+class ApprovalworkflowPlugin(plugins.SingletonPlugin):
     plugins.implements(plugins.IConfigurer)
     plugins.implements(plugins.IBlueprint)
     plugins.implements(plugins.IClick)
     plugins.implements(plugins.IActions)
     plugins.implements(plugins.IAuthFunctions)
     plugins.implements(plugins.ITemplateHelpers, inherit=True)
+    plugins.implements(plugins.IPackageController, inherit=True)
+    plugins.implements(plugins.IValidators)
 
     # IClick
 
     def get_commands(self):
         return get_commands()
 
-    def is_fallback(self):
-        return True
-
-    def _modify_package_schema(self, schema):
-        # Add our custom_resource_text metadata field to the schema
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
-        return schema
-
-    def create_package_schema(self):
-        schema = super(ApprovalworkflowPlugin, self).show_package_schema()
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
-        return schema
-
-    def update_package_schema(self):
-        schema = super(ApprovalworkflowPlugin, self).show_package_schema()
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['approval_workflow'] = [toolkit.get_validator('ignore_missing')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
-        return schema
-
-    def package_types(self):
-        # This plugin doesn't handle any special package types, it just
-        # registers itself as the default (above).
-        return []
-
-    def package_form(self):
-        return super(ApprovalworkflowPlugin, self).package_form()
-
-    def show_package_schema(self):
-        schema = super(ApprovalworkflowPlugin, self).show_package_schema()
-        schema['private'] = [toolkit.get_validator('ignore_missing'), toolkit.get_validator('boolean_validator'),
-                             toolkit.get_validator('datasets_with_no_organization_cannot_be_private')]
-        schema['resources'].update({
-                'state': [toolkit.get_validator('ignore_missing'),
-                          validate_state, ]
-                })
-        return schema
-
-    def setup_template_variables(
-            self, context, data_dict):
-        return super(ApprovalworkflowPlugin, self).setup_template_variables(
-                context, data_dict)
+    # IBlueprint
 
     def get_blueprint(self):
         return [approval_workflow_blueprint, org_approval_workflow,
-                dataset_approval_workflow, approval_resource_blueprint]
+                dataset_approval_workflow]
 
     # IConfigurer
 
@@ -102,7 +50,6 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
     def get_actions(self):
         return {
             "workflow": actions.workflow,
-            'package_update': actions.package_update,
             'save_workflow_options': actions.save_workflow_options,
             'approval_activity_create': actions.approval_activity_create,
             'approval_activity_read': actions.approval_activity_read,
@@ -122,11 +69,96 @@ class ApprovalworkflowPlugin(plugins.SingletonPlugin, toolkit.DefaultDatasetForm
                 helpers.get_approvalworkflow_org_info,
             'get_approval_org_info': helpers.get_approval_org_info,
             'is_user_org_admin': helpers.is_user_org_admin,
+            'get_org_approval_info': helpers.get_org_approval_info,
+            'show_approval_stream': helpers.show_approval_stream,
         }
 
+    # IPackageController
 
-def validate_state(key, data, errors, context):
-    if "resources" not in data:
-        data["state"] = "draft"
-    else:
-        data["state"] = "pending"
+    def create(self, entity):
+
+        if entity.private:
+            return entity
+
+        workflow_info = helpers.get_approvalworkflow_info({})
+        if workflow_info and workflow_info['approval_workflow_active'] == '1':
+            return entity
+
+        owner_org = entity.owner_org
+        if not owner_org:
+            log.info("Dataset has no owner organization, skipping approval check")
+            return entity
+
+        # Context Check: If NOT in a web request bypass approval workflow.
+        if not has_app_context():
+            log.info("Create detected outside of app context. Bypassing approval.")
+            return entity
+
+        if (helpers.get_org_approval_info(owner_org) or
+                (workflow_info and workflow_info['approval_workflow_active'] == '2')):
+
+            is_org_admin = helpers.is_user_org_admin(owner_org)
+            is_sysadmin = g.userobj and g.userobj.sysadmin
+
+            if not (is_org_admin or is_sysadmin):
+                log.info(
+                    "Dataset created by non-admin user, "
+                    "requires approval for public visibility"
+                )
+                entity.private = True
+                flash_msg = _(
+                    "Your dataset has been set as private and "
+                    "requires approval to be made public."
+                )
+                toolkit.h.flash_notice(flash_msg)
+
+            return entity
+
+        else:
+            return entity
+
+    def edit(self, entity):
+
+        if entity.private:
+            return entity
+
+        workflow_info = helpers.get_approvalworkflow_info({})
+        if workflow_info and workflow_info['approval_workflow_active'] == '1':
+            return entity
+
+        owner_org = entity.owner_org
+        if not owner_org:
+            log.info("Dataset has no owner organization, skipping approval check")
+            return entity
+
+        # Context Check: If NOT in a web request (e.g., xloader), bypass the approval workflow.
+        if not has_app_context():
+            log.info("Edit detected outside of app context (xloader). Bypassing approval.")
+            return entity
+
+        if (helpers.get_org_approval_info(owner_org) or
+                (workflow_info and workflow_info['approval_workflow_active'] == '2')):
+
+            is_org_admin = helpers.is_user_org_admin(owner_org)
+            is_sysadmin = g.userobj and g.userobj.sysadmin
+
+            if not (is_org_admin or is_sysadmin):
+                log.info(
+                    "Dataset updated by non-admin user, "
+                    "requires approval for public visibility"
+                )
+                entity.private = True
+                flash_msg = _(
+                    "Your dataset has been set as private and "
+                    "requires approval to be made public."
+                )
+                toolkit.h.flash_notice(flash_msg)
+
+            return entity
+
+        else:
+            return entity
+
+    # IValidators
+    def get_validators(self):
+        return {"approval_state_value": approval_state_value, }

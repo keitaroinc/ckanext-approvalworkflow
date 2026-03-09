@@ -17,7 +17,7 @@
     {% block approval_form %}
         {{ form.select('approval_workflow_active', id='field-org-approval-workflow-active', label=_('Activate approval workflow'), options=data['org_activity_workflow_options'], selected=data_dict.org_approval_workflow_active, error=error) }}
         <div id="edit-options">
-        {{ form.checkbox('ckan.edit-button', label="Disable edit button" ,value=True, checked=data_dict.deactivate_edit, error=error) }}
+        {#{{ form.checkbox('ckan.edit-button', label="Disable edit button" ,value=True, checked=data_dict.deactivate_edit, error=error) }}#}
         </div>
 
       {% endblock %}
